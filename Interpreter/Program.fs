@@ -1,4 +1,9 @@
-﻿open System
+﻿// Simple Interpreter in F#
+// Author: R.J. Lapeer 
+// Date: 23/10/2022
+// Reference: Peter Sestoft, Grammars and parsing with F#, Tech. Report
+
+open System
 
 type terminal = 
     Add | Sub | Mul | Div | Lpar | Rpar | Mod | Pow | Num of int
@@ -28,7 +33,7 @@ let lexer input =
         | '%'::tail -> Mod:: scan tail
         | '^'::tail -> Pow:: scan tail
         | c :: tail when isblank c -> scan tail
-        | c :: tail when isdigit c -> let (iStr, iVal) = scInt(tail, intVal c) 
+        | c :: tail when isdigit c -> let (iStr, iVal) = scInt(tail, intVal c)
                                       Num iVal :: scan iStr
         | _ -> raise lexError
     scan (str2lst input)
@@ -41,11 +46,11 @@ let getInputString() : string =
 // <E>        ::= <T> <Eopt>
 // <Eopt>     ::= "+" <T> <Eopt> | "-" <T> <Eopt> | <empty>
 // <T>        ::= <NR> <Topt>
-// <Topt>     ::= "*" <NR> <Topt> | "/" <NR> <Topt> | <empty>
+// <Topt>     ::= "*" <NR> <Topt> | "/" <NR> <Topt> | "%" <NR> <Topt> | "^" <NR> <Topt> | <empty>
 // <NR>       ::= "Num" <value> | "(" <E> ")"
 
 let parser tList = 
-    let rec E tList = (T >> Eopt) tList         // >> is forward function composition operator: let inline (>>) f g x = g(f x)
+    let rec E tList = (T >> Eopt) tList         // >> is forward function composition operator: let inline (>>) Eopt T tList = Eopt(T(tList))
     and Eopt tList = 
         match tList with
         | Add :: tail -> (T >> Eopt) tail
@@ -56,6 +61,8 @@ let parser tList =
         match tList with
         | Mul :: tail -> (NR >> Topt) tail
         | Div :: tail -> (NR >> Topt) tail
+        | Mod:: tail -> (NR >> Topt) tail
+        | Pow :: tail -> (NR >> Topt) tail
         | _ -> tList
     and NR tList =
         match tList with 
@@ -82,6 +89,8 @@ let parseNeval tList =
                          Topt (tLst, value * tval)
         | Div :: tail -> let (tLst, tval) = NR tail
                          Topt (tLst, value / tval)
+        | Mod :: tail -> let (tLst, tval) = NR tail
+                         Topt (tLst, value % tval)
         | _ -> (tList, value)
     and NR tList =
         match tList with 
@@ -104,7 +113,7 @@ let rec printTList (lst:list<terminal>) : list<string> =
 
 [<EntryPoint>]
 let main argv  =
-    Console.WriteLine("---EXPRESSION INTERPRETER---")
+    Console.WriteLine("Simple Interpreter")
     let input:string = getInputString()
     let oList = lexer input
     let sList = printTList oList;
