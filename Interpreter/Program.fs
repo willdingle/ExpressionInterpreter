@@ -6,7 +6,7 @@
 open System
 
 type terminal = 
-    Add | Sub | Mul | Div | Lpar | Rpar | Mod | Pow | Var of String | Equ | Num of int
+    Add | Sub | Mul | Div | Lpar | Rpar | Mod | Pow | Var of String | Equ | Dot| Num of int
 
 let str2lst s = [for c in s -> c]
 let isblank c = System.Char.IsWhiteSpace c
@@ -21,12 +21,12 @@ let mutable varTable = System.Collections.Generic.Dictionary<string, float>()
 
 let rec scInt(iStr, iVal) = 
     match iStr with
-    c :: tail when isdigit c -> scInt(tail, 10*iVal+(intVal c))
+    | c :: tail when isdigit c -> scInt(tail, 10*iVal+(intVal c))
     | _ -> (iStr, iVal)
 
 let rec scString(iStr, cVal : String) = 
     match iStr with
-    c :: tail when isLetter c -> scString(tail, cVal + string c)
+    c :: tail when isLetter c || isdigit c -> scString(tail, cVal + string c)
     | _ -> (iStr, cVal)
 
 let lexer input = 
@@ -42,10 +42,10 @@ let lexer input =
         | '('::tail -> Lpar:: scan tail
         | ')'::tail -> Rpar:: scan tail
         | '='::tail -> Equ :: scan tail
+        | '.'::tail -> Dot :: scan tail
         | c :: tail when isblank c -> scan tail
         | c :: tail when isdigit c -> let (iStr, iVal) = scInt(tail, intVal c)
                                       Num iVal :: scan iStr
-
         | c :: tail when isLetter c -> let (iStr, cVal) = scString(tail, string c)
                                        Var cVal :: scan iStr
         | _ -> raise lexError
@@ -65,8 +65,7 @@ let getInputString() : string =
 //<Topt>     ::= "*" <F> <Topt> | "/" <F> <Topt> | "%" <F> <Topt> | <empty>
 //<F>        ::= <NR> <Fopt>
 //<Fopt>     ::= "^" <NR> <Fopt> | <empty>
-//<NR>        ::= "Num" <value> | "(" <E> ")" | <Var>
-//<Var>      ::= "Var" <variable> | "Var" <variable> "=" <E>
+//<NR>        ::= "Num" <value> | "(" <E> ")" | "Var" <variable> | "Var" <variable> "=" <E>
 
 //Check with evaluation
 let parseNeval tList = 
@@ -92,10 +91,11 @@ let parseNeval tList =
     and Fopt (tList,value) = 
             match tList with 
             | Pow :: tail -> let (tLst ,tval) = NR tail 
-                             Fopt(tLst,(float)value ** tval)
+                             Fopt(tLst,float value ** tval)
             | _ ->(tList,value)
     and NR tList =
         match tList with 
+        | Sub :: Num value :: tail -> (tail, -value)
         | Num value :: tail -> (tail, value)
         | Lpar :: tail -> let (tLst, tval) = E tail
                           match tLst with 
@@ -104,6 +104,7 @@ let parseNeval tList =
         | Var name :: Equ :: tail -> let (tList, value) = E tail
                                      varTable.[name] <- value
                                      (tList, value)
+        | Sub :: Var name:: tail -> (tail,-varTable.[name])
         | Var name:: tail -> (tail,varTable.[name])
         | _ -> raise parseError
     E tList
@@ -152,8 +153,7 @@ let main argv  =
     //let pList = printTList (parser oList)
 
     let Out = parseNeval oList
-    //Console.WriteLine("Result = {0}", snd Out)
-
+    Console.WriteLine("Result = {0}", snd Out)
 
     let input:string = getInputString()
     let oList = lexer input
