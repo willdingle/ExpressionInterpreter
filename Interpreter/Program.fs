@@ -6,19 +6,28 @@
 open System
 
 type terminal = 
-    Add | Sub | Mul | Div | Lpar | Rpar | Mod | Pow | Num of int
+    Add | Sub | Mul | Div | Lpar | Rpar | Mod | Pow | Var of String | Equ | Num of int
 
 let str2lst s = [for c in s -> c]
 let isblank c = System.Char.IsWhiteSpace c
 let isdigit c = System.Char.IsDigit c
+let isLetter c = System.Char.IsLetter c
 let lexError = System.Exception("Lexer error")
 let intVal (c:char) = (int)((int)c - (int)'0')
 let parseError = System.Exception("Parser error")
+
+// Tables to store the variables
+let mutable varTable = System.Collections.Generic.Dictionary<string, float>()
 
 let rec scInt(iStr, iVal) = 
     match iStr with
     c :: tail when isdigit c -> scInt(tail, 10*iVal+(intVal c))
     | _ -> (iStr, iVal)
+
+let rec scString(iStr, cVal : String) = 
+    match iStr with
+    c :: tail when isLetter c -> scString(tail, cVal + string c)
+    | _ -> (iStr, cVal)
 
 let lexer input = 
     let rec scan input =
@@ -28,13 +37,17 @@ let lexer input =
         | '-'::tail -> Sub :: scan tail
         | '*'::tail -> Mul :: scan tail
         | '/'::tail -> Div :: scan tail
-        | '('::tail -> Lpar:: scan tail
-        | ')'::tail -> Rpar:: scan tail
         | '%'::tail -> Mod:: scan tail
         | '^'::tail -> Pow:: scan tail
+        | '('::tail -> Lpar:: scan tail
+        | ')'::tail -> Rpar:: scan tail
+        | '='::tail -> Equ :: scan tail
         | c :: tail when isblank c -> scan tail
         | c :: tail when isdigit c -> let (iStr, iVal) = scInt(tail, intVal c)
                                       Num iVal :: scan iStr
+
+        | c :: tail when isLetter c -> let (iStr, cVal) = scString(tail, string c)
+                                       Var cVal :: scan iStr
         | _ -> raise lexError
     scan (str2lst input)
 
@@ -42,13 +55,60 @@ let getInputString() : string =
     Console.Write("Enter an expression: ")
     Console.ReadLine()
 
-// Grammar in BNF:
-// <E>        ::= <T> <Eopt>
-// <Eopt>     ::= "+" <T> <Eopt> | "-" <T> <Eopt> | <empty>
-// <T>        ::= <NR> <Topt>
-// <Topt>     ::= "*" <NR> <Topt> | "/" <NR> <Topt> | "%" <NR> <Topt> | "^" <NR> <Topt> | <empty>
-// <NR>       ::= "Num" <value> | "(" <E> ")"
 
+// F accounting for ^ having a higher precedence than */% operators
+
+// Grammar in BNF:
+//<E>        ::= <T> <Eopt>
+//<Eopt>     ::= "+" <T> <Eopt> | "-" <T> <Eopt> | <empty>
+//<T>        ::= <F> <Topt>
+//<Topt>     ::= "*" <F> <Topt> | "/" <F> <Topt> | "%" <F> <Topt> | <empty>
+//<F>        ::= <NR> <Fopt>
+//<Fopt>     ::= "^" <NR> <Fopt> | <empty>
+//<NR>        ::= "Num" <value> | "(" <E> ")" | <Var>
+//<Var>      ::= "Var" <variable> | "Var" <variable> "=" <E>
+
+//Check with evaluation
+let parseNeval tList = 
+    let rec E tList = (T >> Eopt) tList
+    and Eopt (tList, value) = 
+        match tList with
+        | Add :: tail -> let (tLst, tval) = T tail
+                         Eopt (tLst, value + tval)
+        | Sub :: tail -> let (tLst, tval) = T tail
+                         Eopt (tLst, value - tval)
+        | _ -> (tList, value)
+    and T tList = (F >> Topt) tList
+    and Topt (tList, value) =
+        match tList with
+        | Mul :: tail -> let (tLst, tval) = F tail
+                         Topt (tLst, value * tval)
+        | Div :: tail -> let (tLst, tval) = F tail
+                         Topt (tLst, value / tval)
+        | Mod :: tail -> let (tLst, tval) = F tail
+                         Topt (tLst, value % tval)
+        | _ -> (tList, value)
+    and F tList = (NR >> Fopt) tList
+    and Fopt (tList,value) = 
+            match tList with 
+            | Pow :: tail -> let (tLst ,tval) = NR tail 
+                             Fopt(tLst,(float)value ** tval)
+            | _ ->(tList,value)
+    and NR tList =
+        match tList with 
+        | Num value :: tail -> (tail, value)
+        | Lpar :: tail -> let (tLst, tval) = E tail
+                          match tLst with 
+                          | Rpar :: tail -> (tail, tval)
+                          | _ -> raise parseError
+        | Var name :: Equ :: tail -> let (tList, value) = E tail
+                                     varTable.[name] <- value
+                                     (tList, value)
+        | Var name:: tail -> (tail,varTable.[name])
+        | _ -> raise parseError
+    E tList
+
+(*//Check without evaluation
 let parser tList = 
     let rec E tList = (T >> Eopt) tList         // >> is forward function composition operator: let inline (>>) Eopt T tList = Eopt(T(tList))
     and Eopt tList = 
@@ -71,36 +131,7 @@ let parser tList =
                           | Rpar :: tail -> tail
                           | _ -> raise parseError
         | _ -> raise parseError
-    E tList
-
-let parseNeval tList = 
-    let rec E tList = (T >> Eopt) tList
-    and Eopt (tList, value) = 
-        match tList with
-        | Add :: tail -> let (tLst, tval) = T tail
-                         Eopt (tLst, value + tval)
-        | Sub :: tail -> let (tLst, tval) = T tail
-                         Eopt (tLst, value - tval)
-        | _ -> (tList, value)
-    and T tList = (NR >> Topt) tList
-    and Topt (tList, value) =
-        match tList with
-        | Mul :: tail -> let (tLst, tval) = NR tail
-                         Topt (tLst, value * tval)
-        | Div :: tail -> let (tLst, tval) = NR tail
-                         Topt (tLst, value / tval)
-        | Mod :: tail -> let (tLst, tval) = NR tail
-                         Topt (tLst, value % tval)
-        | _ -> (tList, value)
-    and NR tList =
-        match tList with 
-        | Num value :: tail -> (tail, value)
-        | Lpar :: tail -> let (tLst, tval) = E tail
-                          match tLst with 
-                          | Rpar :: tail -> (tail, tval)
-                          | _ -> raise parseError
-        | _ -> raise parseError
-    E tList
+    E tList*)
 
 let rec printTList (lst:list<terminal>) : list<string> = 
     match lst with
@@ -116,8 +147,20 @@ let main argv  =
     Console.WriteLine("Simple Interpreter")
     let input:string = getInputString()
     let oList = lexer input
+
     let sList = printTList oList;
-    let pList = printTList (parser oList)
+    //let pList = printTList (parser oList)
+
+    let Out = parseNeval oList
+    //Console.WriteLine("Result = {0}", snd Out)
+
+
+    let input:string = getInputString()
+    let oList = lexer input
+
+    let sList = printTList oList;
+    //let pList = printTList (parser oList)
+
     let Out = parseNeval oList
     Console.WriteLine("Result = {0}", snd Out)
     0
