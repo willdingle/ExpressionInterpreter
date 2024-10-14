@@ -11,14 +11,20 @@ using System.Windows.Shapes;
 
 namespace GUI
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        private void InputBoxKeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.Key ==  Key.Enter)
+            {
+                MessageBox.Show(inputBox.Text);
+                e.Handled = true;
+            }
         }
     }
 }
