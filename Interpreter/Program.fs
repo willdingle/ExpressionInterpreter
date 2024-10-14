@@ -59,18 +59,24 @@ module Interpreter =
 
     // F accounting for ^ having a higher precedence than */% operators
 
+
     // Grammar in BNF:
-    //<E>        ::= <T> <Eopt>
+    //<E>        ::= <T> <Eopt> |  "Var" <variable> "=" <E>
     //<Eopt>     ::= "+" <T> <Eopt> | "-" <T> <Eopt> | <empty>
     //<T>        ::= <F> <Topt>
     //<Topt>     ::= "*" <F> <Topt> | "/" <F> <Topt> | "%" <F> <Topt> | <empty>
     //<F>        ::= <NR> <Fopt>
     //<Fopt>     ::= "^" <NR> <Fopt> | <empty>
-    //<NR>        ::= "Num" <value> | "(" <E> ")" | "Var" <variable> | "Var" <variable> "=" <E>
+    //<NR>       ::= "Num" <value> | "(" <E> ")" | "Var" <variable>
 
     //Check with evaluation
     let parseNeval (tList,varTable:Dictionary<string,double>) = 
-        let rec E tList = (T >> Eopt) tList
+        let rec E tList = 
+            match tList with
+            | Var name :: Equ :: tail -> let (tList, value) = E tail
+                                         varTable.[name] <- value
+                                         (tList, value)
+            | _-> (T >> Eopt) tList
         and Eopt (tList, value) = 
             match tList with
             | Add :: tail -> let (tLst, tval) = T tail
@@ -103,9 +109,6 @@ module Interpreter =
                               match tLst with 
                               | Rpar :: tail -> (tail, tval)
                               | _ -> raise parseError
-            | Var name :: Equ :: tail -> let (tList, value) = E tail
-                                         varTable.[name] <- value
-                                         (tList, value)
             | Sub :: Var name:: tail -> (tail,-varTable.[name])
             | Var name:: tail -> (tail,varTable.[name])
             | _ -> raise parseError
