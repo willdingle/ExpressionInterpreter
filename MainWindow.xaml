@@ -1,9 +1,9 @@
-﻿<Window x:Class="GUI.MainWindow"
+﻿<Window x:Class="ExpressionInterpreter.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:GUI"
+        xmlns:local="clr-namespace:ExpressionInterpreter"
         mc:Ignorable="d"
         Title="Expression Interpreter" Height="450" Width="800">
     <Grid>
@@ -14,6 +14,8 @@
         <TextBlock HorizontalAlignment="Center" Margin="0,10,0,0" TextWrapping="Wrap" FontSize="40" FontWeight="Bold" Text="Expression Interpreter" VerticalAlignment="Top" Grid.Column="1"/>
         <TextBox x:Name="inputBox" Grid.Column="1" HorizontalAlignment="Left" Margin="0,122,0,0" TextWrapping="Wrap" FontSize="16" Text="" VerticalAlignment="Top" Width="698" Height="30" KeyUp="InputBoxKeyUp"/>
         <TextBlock Grid.Column="1" HorizontalAlignment="Left" Margin="0,84,0,0" TextWrapping="Wrap" FontSize="25" Text="Input:" VerticalAlignment="Top"/>
+        <TextBlock Grid.Column="1" HorizontalAlignment="Left" Margin="0,184,0,0" TextWrapping="Wrap" FontSize="25" Text="Output:" VerticalAlignment="Top"/>
+        <TextBox x:Name="outputBox" Grid.Column="1" HorizontalAlignment="Left" Margin="0,222,0,0" TextWrapping="Wrap" FontSize="16" Text="" VerticalAlignment="Top" Width="698" Height="30"/>
 
     </Grid>
 </Window>

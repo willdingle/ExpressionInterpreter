@@ -2,7 +2,7 @@
 using System.Data;
 using System.Windows;
 
-namespace GUI
+namespace ExpressionInterpreter
 {
     /// <summary>
     /// Interaction logic for App.xaml
