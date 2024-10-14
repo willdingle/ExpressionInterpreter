@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Diagnostics;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -30,8 +31,12 @@ namespace ExpressionInterpreter
 
                 // Process inputted code
                 var oList = Interpreter.lexer(inputBox.Text);
-                var sList = Interpreter.printTList(oList);
-                //var pList = Interpreter.printTList(Interpreter.parser(oList));
+                string sListStr = "";
+                for (int i = 0; i < oList.Length; i++)
+                {
+                    sListStr += oList[i] + " ; ";
+                }
+                Trace.WriteLine(sListStr);
                 var Out = Interpreter.parseNeval(oList, varTable);
 
                 //TODO: below line should display output of inputted code

@@ -10,7 +10,8 @@ open System.Collections.Generic
 module Interpreter = 
 
     type terminal = 
-        Add | Sub | Mul | Div | Lpar | Rpar | Mod | Pow | Var of String | Equ | Dot| Num of int
+        Add | Sub | Mul | Div | Lpar | Rpar | Mod | Pow | Var of String | Equ | Dot | Num of int
+        | Cos of String
 
     let str2lst s = [for c in s -> c]
     let isblank c = System.Char.IsWhiteSpace c
@@ -48,7 +49,10 @@ module Interpreter =
             | c :: tail when isdigit c -> let (iStr, iVal) = scInt(tail, intVal c)
                                           Num iVal :: scan iStr
             | c :: tail when isLetter c -> let (iStr, cVal) = scString(tail, string c)
-                                           Var cVal :: scan iStr
+                                           let rec checkinput input = match input with
+                                                                      | "cos" -> Cos "cos" :: scan iStr
+                                                                      | _ -> Var cVal :: scan iStr
+                                           checkinput cVal
             | _ -> raise lexError
         scan (str2lst input)
 
