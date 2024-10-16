@@ -114,7 +114,10 @@ module Interpreter =
                               | Rpar :: tail -> (tail, tval)
                               | _ -> raise parseError
             | Sub :: Var name:: tail -> (tail,-varTable.[name])
-            | Var name:: tail -> (tail,varTable.[name])
+            | Var name:: tail -> try 
+                                    (tail,varTable.[name])
+                                 with
+                                    | :? System.Collections.Generic.KeyNotFoundException -> raise parseError
             | _ -> raise parseError
         E tList
 

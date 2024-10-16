@@ -15,9 +15,9 @@
         <TextBox x:Name="inputBox" Grid.Column="1" HorizontalAlignment="Left" Margin="0,122,0,0" TextWrapping="Wrap" FontSize="16" Text="" VerticalAlignment="Top" Width="698" Height="30" KeyUp="InputBoxKeyUp"/>
         <TextBlock Grid.Column="1" HorizontalAlignment="Left" Margin="0,84,0,0" TextWrapping="Wrap" FontSize="25" Text="Input:" VerticalAlignment="Top"/>
         <TextBlock Grid.Column="1" HorizontalAlignment="Left" Margin="0,184,0,0" TextWrapping="Wrap" FontSize="25" Text="Output:" VerticalAlignment="Top"/>
-        <TextBox x:Name="outputBox" Grid.Column="1" HorizontalAlignment="Left" Margin="0,222,0,0" TextWrapping="Wrap" FontSize="16" Text="" VerticalAlignment="Top" Width="698" Height="30"/>
+        <TextBox IsReadOnly="True" x:Name="outputBox" Grid.Column="1" HorizontalAlignment="Left" Margin="0,222,0,0" TextWrapping="Wrap" FontSize="16" Text="" VerticalAlignment="Top" Width="698" Height="30"/>
         <TextBlock Grid.Column="1" HorizontalAlignment="Left" Margin="0,306,0,0" TextWrapping="Wrap" FontSize="25" VerticalAlignment="Top"><Run Language="en-gb" Text="sList:"/></TextBlock>
-        <TextBox x:Name="sListBox" Grid.Column="1" HorizontalAlignment="Left" Margin="0,344,0,0" TextWrapping="Wrap" FontSize="16" Text="" VerticalAlignment="Top" Width="698" Height="30"/>
+        <TextBox IsReadOnly="True" x:Name="sListBox" Grid.Column="1" HorizontalAlignment="Left" Margin="0,344,0,0" TextWrapping="Wrap" FontSize="16" Text="" VerticalAlignment="Top" Width="698" Height="30"/>
 
     </Grid>
 </Window>

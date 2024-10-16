@@ -31,13 +31,16 @@ namespace ExpressionInterpreter
 
                 // Process inputted code
                 var oList = Interpreter.lexer(inputBox.Text);
+                var Out = Interpreter.parseNeval(oList, varTable);
+
+                // Output data from lexer
                 string sListStr = "";
                 for (int i = 0; i < oList.Length; i++)
                 {
-                    sListStr += oList[i] + " ; ";
+                    sListStr += oList[i] + " , ";
                 }
                 Trace.WriteLine(sListStr);
-                var Out = Interpreter.parseNeval(oList, varTable);
+                sListBox.Text = sListStr;
 
                 //TODO: below line should display output of inputted code
                 outputBox.Text = Out.Item2.ToString();
