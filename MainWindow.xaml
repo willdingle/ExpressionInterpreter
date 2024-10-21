@@ -16,8 +16,11 @@
         <TextBlock Grid.Column="1" HorizontalAlignment="Left" Margin="0,84,0,0" TextWrapping="Wrap" FontSize="25" Text="Input:" VerticalAlignment="Top"/>
         <TextBlock Grid.Column="1" HorizontalAlignment="Left" Margin="0,184,0,0" TextWrapping="Wrap" FontSize="25" Text="Output:" VerticalAlignment="Top"/>
         <TextBox IsReadOnly="True" x:Name="outputBox" Grid.Column="1" HorizontalAlignment="Left" Margin="0,222,0,0" TextWrapping="Wrap" FontSize="16" Text="" VerticalAlignment="Top" Width="698" Height="30"/>
-        <TextBlock Grid.Column="1" HorizontalAlignment="Left" Margin="0,306,0,0" TextWrapping="Wrap" FontSize="25" VerticalAlignment="Top"><Run Language="en-gb" Text="sList:"/></TextBlock>
-        <TextBox IsReadOnly="True" x:Name="sListBox" Grid.Column="1" HorizontalAlignment="Left" Margin="0,344,0,0" TextWrapping="Wrap" FontSize="16" Text="" VerticalAlignment="Top" Width="698" Height="30"/>
+        <TextBlock Grid.Column="1" HorizontalAlignment="Left" Margin="0,356,0,0" TextWrapping="Wrap" FontSize="25" VerticalAlignment="Top"><Run Language="en-gb" Text="sList:"/></TextBlock>
+        <TextBox IsReadOnly="True" x:Name="sListBox" Grid.Column="1" HorizontalAlignment="Left" Margin="0,394,0,0" TextWrapping="Wrap" FontSize="16" Text="" VerticalAlignment="Top" Width="698" Height="30"/>
+        <TextBox IsReadOnly="True" x:Name="errorBox" Grid.Column="1" HorizontalAlignment="Left" Margin="0,305,0,0" TextWrapping="Wrap" FontSize="16" Text="" VerticalAlignment="Top" Width="698" Height="30"/>
+        <TextBlock Grid.Column="1" HorizontalAlignment="Left" Margin="0,184,0,0" TextWrapping="Wrap" FontSize="25" Text="Output:" VerticalAlignment="Top"/>
+        <TextBlock Grid.Column="1" HorizontalAlignment="Left" Margin="0,267,0,0" TextWrapping="Wrap" FontSize="25" VerticalAlignment="Top"><Run Language="en-gb" Text="Errors:"/></TextBlock>
 
     </Grid>
 </Window>

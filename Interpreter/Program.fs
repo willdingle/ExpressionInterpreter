@@ -106,6 +106,7 @@ module Interpreter =
                 | _ ->(tList,value)
         and NR tList =
             match tList with 
+            | Num value :: Dot :: Num value2 :: tail -> (tail, (float)((string) value + "." + (string)value2))
             | Sub :: Num value :: tail -> (tail, -value)
             | Num value :: Equ :: tail -> raise parseError
             | Num value :: tail -> (tail, value)
@@ -113,9 +114,9 @@ module Interpreter =
                               match tLst with 
                               | Rpar :: tail -> (tail, tval)
                               | _ -> raise parseError
-            | Sub :: Var name:: tail -> (tail,-varTable.[name])
+            | Sub :: Var name:: tail -> (tail, -varTable.[name])
             | Var name:: tail -> try 
-                                    (tail,varTable.[name])
+                                    (tail, varTable.[name])
                                  with
                                     | :? System.Collections.Generic.KeyNotFoundException -> raise parseError
             | _ -> raise parseError

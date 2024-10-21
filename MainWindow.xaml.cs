@@ -31,21 +31,29 @@ namespace ExpressionInterpreter
 
                 // Process inputted code
                 var oList = Interpreter.lexer(inputBox.Text);
-                var Out = Interpreter.parseNeval(oList, varTable);
 
-                // Output data from lexer
-                string sListStr = "";
-                for (int i = 0; i < oList.Length; i++)
+                try
                 {
-                    sListStr += oList[i] + " , ";
+                    var Out = Interpreter.parseNeval(oList, varTable);
+                    outputBox.Text = Out.Item2.ToString();
                 }
-                Trace.WriteLine(sListStr);
-                sListBox.Text = sListStr;
-
-                //TODO: below line should display output of inputted code
-                outputBox.Text = Out.Item2.ToString();
-                inputBox.Text = "";
-                e.Handled = true;
+                catch (Exception ex)
+                {
+                    errorBox.Text = ex.Message;
+                }
+                finally
+                {
+                    // Output data from lexer
+                    string sListStr = "";
+                    for (int i = 0; i < oList.Length; i++)
+                    {
+                        sListStr += oList[i] + " , ";
+                    }
+                    Trace.WriteLine(sListStr);
+                    sListBox.Text = sListStr;
+                    e.Handled = true;
+                }
+                
             }
         }
     }
