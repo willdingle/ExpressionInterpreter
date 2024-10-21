@@ -10,8 +10,7 @@ open System.Collections.Generic
 module Interpreter = 
 
     type terminal = 
-        Add | Sub | Mul | Div | Lpar | Rpar | Mod | Pow | Var of String | Equ | Dot | Num of int
-        | Cos of String
+        Add | Sub | Mul | Div | Lpar | Rpar | Mod | Pow | Var of String | Equ | Dot| Num of int
 
     let str2lst s = [for c in s -> c]
     let isblank c = System.Char.IsWhiteSpace c
@@ -49,10 +48,7 @@ module Interpreter =
             | c :: tail when isdigit c -> let (iStr, iVal) = scInt(tail, intVal c)
                                           Num iVal :: scan iStr
             | c :: tail when isLetter c -> let (iStr, cVal) = scString(tail, string c)
-                                           let rec checkinput input = match input with
-                                                                      | "cos" -> Cos "cos" :: scan iStr
-                                                                      | _ -> Var cVal :: scan iStr
-                                           checkinput cVal
+                                           Var cVal :: scan iStr
             | _ -> raise lexError
         scan (str2lst input)
 
@@ -60,27 +56,22 @@ module Interpreter =
         Console.Write("Enter an expression: ")
         Console.ReadLine()
 
-
     // F accounting for ^ having a higher precedence than */% operators
 
-
     // Grammar in BNF:
-    //<E>        ::= <T> <Eopt> |  "Var" <variable> "=" <E>
+    //<E>        ::= <T> <Eopt>
     //<Eopt>     ::= "+" <T> <Eopt> | "-" <T> <Eopt> | <empty>
     //<T>        ::= <F> <Topt>
     //<Topt>     ::= "*" <F> <Topt> | "/" <F> <Topt> | "%" <F> <Topt> | <empty>
     //<F>        ::= <NR> <Fopt>
     //<Fopt>     ::= "^" <NR> <Fopt> | <empty>
-    //<NR>       ::= "Num" <value> | "(" <E> ")" | "Var" <variable>
+    //<NR>        ::= "Num" <value> | "(" <E> ")" | "Var" <variable> | "Var" <variable> "=" <E>
+
+    type Type = {INT : int ; FLOAT:double}
 
     //Check with evaluation
     let parseNeval (tList,varTable:Dictionary<string,double>) = 
-        let rec E tList = 
-            match tList with
-            | Var name :: Equ :: tail -> let (tList, value) = E tail
-                                         varTable.[name] <- value
-                                         (tList, value)
-            | _-> (T >> Eopt) tList
+        let rec E tList = (T >> Eopt) tList
         and Eopt (tList, value) = 
             match tList with
             | Add :: tail -> let (tLst, tval) = T tail
@@ -94,7 +85,7 @@ module Interpreter =
             | Mul :: tail -> let (tLst, tval) = F tail
                              Topt (tLst, value * tval)
             | Div :: tail -> let (tLst, tval) = F tail
-                             Topt (tLst, value / tval)
+                             if not (tval = 0.0) then Topt (tLst, value / tval) else raise parseError
             | Mod :: tail -> let (tLst, tval) = F tail
                              Topt (tLst, value % tval)
             | _ -> (tList, value)
@@ -102,18 +93,22 @@ module Interpreter =
         and Fopt (tList,value) = 
                 match tList with 
                 | Pow :: tail -> let (tLst ,tval) = NR tail 
-                                 Fopt(tLst,float value ** tval)
+                                 Fopt(tLst,value ** tval)
                 | _ ->(tList,value)
         and NR tList =
             match tList with 
             | Num value :: Dot :: Num value2 :: tail -> (tail, (float)((string) value + "." + (string)value2))
             | Sub :: Num value :: tail -> (tail, -value)
             | Num value :: Equ :: tail -> raise parseError
+            | Num value :: Dot :: Num value2 :: tail -> (tail,value)
             | Num value :: tail -> (tail, value)
             | Lpar :: tail -> let (tLst, tval) = E tail
                               match tLst with 
                               | Rpar :: tail -> (tail, tval)
                               | _ -> raise parseError
+            | Var name :: Equ :: tail -> let (tList, value) = E tail
+                                         varTable.[name] <- value
+                                         (tList, value)
             | Sub :: Var name:: tail -> (tail, -varTable.[name])
             | Var name:: tail -> try 
                                     (tail, varTable.[name])
