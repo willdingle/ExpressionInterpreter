@@ -10,6 +10,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using FsharpLib;
+using Microsoft.FSharp.Collections;
 
 namespace ExpressionInterpreter
 {
@@ -30,19 +31,24 @@ namespace ExpressionInterpreter
                 //MessageBox.Show(inputBox.Text);
 
                 // Process inputted code
-                var oList = Interpreter.lexer(inputBox.Text);
-
+                outputBox.Text = "";
+                errorBox.Text = "";
+                sListBox.Text = "";
+                
                 try
                 {
-                    var Out = Interpreter.parseNeval(oList, varTable);
-                    outputBox.Text = Out.Item2.ToString();
-                }
-                catch (Exception ex)
-                {
-                    errorBox.Text = ex.Message;
-                }
-                finally
-                {
+                    var oList = Interpreter.lexer(inputBox.Text);
+
+                    try
+                    {
+                        var Out = Interpreter.parseNeval(oList, varTable);
+                        outputBox.Text = Out.Item2.ToString();
+                    }
+                    catch (Exception ex)
+                    {
+                        errorBox.Text = ex.Message;
+                    }
+                    
                     // Output data from lexer
                     string sListStr = "";
                     for (int i = 0; i < oList.Length; i++)
@@ -52,7 +58,15 @@ namespace ExpressionInterpreter
                     Trace.WriteLine(sListStr);
                     sListBox.Text = sListStr;
                     e.Handled = true;
+                    
                 }
+                catch (Exception ex)
+                {
+                    errorBox.Text = ex.Message;
+                }
+                
+
+                
                 
             }
         }

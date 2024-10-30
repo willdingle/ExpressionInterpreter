@@ -16,9 +16,7 @@ module Interpreter =
     let isblank c = System.Char.IsWhiteSpace c
     let isdigit c = System.Char.IsDigit c
     let isLetter c = System.Char.IsLetter c
-    let lexError = System.Exception("Lexer error")
     let intVal (c:char) = (int)((int)c - (int)'0')
-    let parseError = System.Exception("Parser error")
 
     let rec scInt(iStr, iVal) = 
         match iStr with
@@ -49,7 +47,7 @@ module Interpreter =
                                           Num iVal :: scan iStr
             | c :: tail when isLetter c -> let (iStr, cVal) = scString(tail, string c)
                                            Var cVal :: scan iStr
-            | _ -> raise lexError
+            | _ -> raise (System.Exception("Lexer error: Invalid character"))
         scan (str2lst input)
 
     let getInputString() : string = 
@@ -85,7 +83,7 @@ module Interpreter =
             | Mul :: tail -> let (tLst, tval) = F tail
                              Topt (tLst, value * tval)
             | Div :: tail -> let (tLst, tval) = F tail
-                             if not (tval = 0.0) then Topt (tLst, value / tval) else raise parseError
+                             if not (tval = 0.0) then Topt (tLst, value / tval) else raise (System.Exception("Parser error: Division by 0"))
             | Mod :: tail -> let (tLst, tval) = F tail
                              Topt (tLst, value % tval)
             | _ -> (tList, value)
@@ -99,13 +97,13 @@ module Interpreter =
             match tList with 
             | Num value :: Dot :: Num value2 :: tail -> (tail, (float)((string) value + "." + (string)value2))
             | Sub :: Num value :: tail -> (tail, -value)
-            | Num value :: Equ :: tail -> raise parseError
+            | Num value :: Equ :: tail -> raise (System.Exception("Parser error: Number used as a variable name"))
             | Num value :: Dot :: Num value2 :: tail -> (tail,value)
             | Num value :: tail -> (tail, value)
             | Lpar :: tail -> let (tLst, tval) = E tail
                               match tLst with 
                               | Rpar :: tail -> (tail, tval)
-                              | _ -> raise parseError
+                              | _ -> raise (System.Exception("Parser error: Open bracket was not closed"))
             | Var name :: Equ :: tail -> let (tList, value) = E tail
                                          varTable.[name] <- value
                                          (tList, value)
@@ -113,8 +111,8 @@ module Interpreter =
             | Var name:: tail -> try 
                                     (tail, varTable.[name])
                                  with
-                                    | :? System.Collections.Generic.KeyNotFoundException -> raise parseError
-            | _ -> raise parseError
+                                    | :? System.Collections.Generic.KeyNotFoundException -> raise (System.Exception("Parser error: Variable not declared"))
+            | _ -> raise (System.Exception("Parser error: Invalid expression"))
         E tList
 
     (*//Check without evaluation
