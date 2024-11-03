@@ -56,20 +56,28 @@ module Interpreter =
 
     // F accounting for ^ having a higher precedence than */% operators
 
-    // Grammar in BNF:
-    //<E>        ::= <T> <Eopt>
+    //<E>        ::= <T> <Eopt> | "Var" <variable> "=" <E>
     //<Eopt>     ::= "+" <T> <Eopt> | "-" <T> <Eopt> | <empty>
     //<T>        ::= <F> <Topt>
     //<Topt>     ::= "*" <F> <Topt> | "/" <F> <Topt> | "%" <F> <Topt> | <empty>
-    //<F>        ::= <NR> <Fopt>
-    //<Fopt>     ::= "^" <NR> <Fopt> | <empty>
-    //<NR>        ::= "Num" <value> | "(" <E> ")" | "Var" <variable> | "Var" <variable> "=" <E>
+    //<F>        ::= <U> <Fopt>
+    //<Fopt>     ::= "^" <U> <Fopt> | <empty>
+    //<U>        ::= "-" <U> | <NR> 
+    //<NR>       ::= "Num" <value> <NReopt> | "(" <E> ")" | "Var" <variable>
+    //<NReopt>   ::= "e" <Eexp> | <empty>
+    //<Eexp>     ::= "+" <value> | "-" <value> | <value>
+
 
     type Type = {INT : int ; FLOAT:double}
 
     //Check with evaluation
     let parseNeval (tList,varTable:Dictionary<string,double>) = 
-        let rec E tList = (T >> Eopt) tList
+        let rec E tList = 
+            match tList with
+            | Var name :: Equ :: tail -> let (tList, value) = E tail
+                                         varTable.[name] <- value
+                                         (tList, value)
+            | _-> (T >> Eopt) tList
         and Eopt (tList, value) = 
             match tList with
             | Add :: tail -> let (tLst, tval) = T tail
@@ -98,15 +106,11 @@ module Interpreter =
             | Num value :: Dot :: Num value2 :: tail -> (tail, (float)((string) value + "." + (string)value2))
             | Sub :: Num value :: tail -> (tail, -value)
             | Num value :: Equ :: tail -> raise (System.Exception("Parser error: Number used as a variable name"))
-            | Num value :: Dot :: Num value2 :: tail -> (tail,value)
             | Num value :: tail -> (tail, value)
             | Lpar :: tail -> let (tLst, tval) = E tail
                               match tLst with 
                               | Rpar :: tail -> (tail, tval)
                               | _ -> raise (System.Exception("Parser error: Open bracket was not closed"))
-            | Var name :: Equ :: tail -> let (tList, value) = E tail
-                                         varTable.[name] <- value
-                                         (tList, value)
             | Sub :: Var name:: tail -> (tail, -varTable.[name])
             | Var name:: tail -> try 
                                     (tail, varTable.[name])
