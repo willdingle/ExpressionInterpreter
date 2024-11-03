@@ -10,7 +10,7 @@ open System.Collections.Generic
 module Interpreter = 
 
     type terminal = 
-        Add | Sub | Mul | Div | Lpar | Rpar | Mod | Pow | Var of String | Equ | Dot| Num of int
+        Add | Sub | Mul | Div | Lpar | Rpar | Mod | Pow | Var of String | Equ | Dot| Num of int | E
 
     let str2lst s = [for c in s -> c]
     let isblank c = System.Char.IsWhiteSpace c
@@ -42,6 +42,7 @@ module Interpreter =
             | ')'::tail -> Rpar:: scan tail
             | '='::tail -> Equ :: scan tail
             | '.'::tail -> Dot :: scan tail
+            | 'e'::tail -> E :: scan tail
             | c :: tail when isblank c -> scan tail
             | c :: tail when isdigit c -> let (iStr, iVal) = scInt(tail, intVal c)
                                           Num iVal :: scan iStr
@@ -54,21 +55,18 @@ module Interpreter =
         Console.Write("Enter an expression: ")
         Console.ReadLine()
 
-    // F accounting for ^ having a higher precedence than */% operators
-
+   // BNF:
     //<E>        ::= <T> <Eopt> | "Var" <variable> "=" <E>
     //<Eopt>     ::= "+" <T> <Eopt> | "-" <T> <Eopt> | <empty>
     //<T>        ::= <F> <Topt>
     //<Topt>     ::= "*" <F> <Topt> | "/" <F> <Topt> | "%" <F> <Topt> | <empty>
     //<F>        ::= <U> <Fopt>
     //<Fopt>     ::= "^" <U> <Fopt> | <empty>
-    //<U>        ::= "-" <U> | <NR> 
+    //<U>        ::= "-" <NR> | <NR> 
     //<NR>       ::= "Num" <value> <NReopt> | "(" <E> ")" | "Var" <variable>
     //<NReopt>   ::= "e" <Eexp> | <empty>
     //<Eexp>     ::= "+" <value> | "-" <value> | <value>
 
-
-    type Type = {INT : int ; FLOAT:double}
 
     //Check with evaluation
     let parseNeval (tList,varTable:Dictionary<string,double>) = 
@@ -95,15 +93,23 @@ module Interpreter =
             | Mod :: tail -> let (tLst, tval) = F tail
                              Topt (tLst, value % tval)
             | _ -> (tList, value)
-        and F tList = (NR >> Fopt) tList
+        and F tList = (U >> Fopt) tList
         and Fopt (tList,value) = 
                 match tList with 
-                | Pow :: tail -> let (tLst ,tval) = NR tail 
+                | Pow :: tail -> let (tLst ,tval) = U tail 
                                  Fopt(tLst,value ** tval)
                 | _ ->(tList,value)
+        and U tList = 
+            match tList with
+            | Sub :: tail ->
+                let (tLst,tVal) = NR tail 
+                (tLst,-tVal)
+            | _-> NR tList
         and NR tList =
             match tList with 
             | Num value :: Dot :: Num value2 :: tail -> (tail, (float)((string) value + "." + (string)value2))
+            | Num value :: E :: exp -> let (tLst,eVal)  = Eexp exp
+                                       (tLst,(float)value * (10.0 ** eVal))
             | Sub :: Num value :: tail -> (tail, -value)
             | Num value :: Equ :: tail -> raise (System.Exception("Parser error: Number used as a variable name"))
             | Num value :: tail -> (tail, value)
@@ -112,10 +118,15 @@ module Interpreter =
                               | Rpar :: tail -> (tail, tval)
                               | _ -> raise (System.Exception("Parser error: Open bracket was not closed"))
             | Sub :: Var name:: tail -> (tail, -varTable.[name])
-            | Var name:: tail -> try 
-                                    (tail, varTable.[name])
+            | Var name:: tail -> try (tail, varTable.[name])
                                  with
                                     | :? System.Collections.Generic.KeyNotFoundException -> raise (System.Exception("Parser error: Variable not declared"))
+            | _ -> raise (System.Exception("Parser error: Invalid expression"))
+        and Eexp tList = 
+            match tList with
+            | Add :: Num value :: tail -> (tail,value)
+            | Sub :: Num value :: tail -> (tail,-value)
+            | Num value :: tail -> (tail,value)
             | _ -> raise (System.Exception("Parser error: Invalid expression"))
         E tList
 
