@@ -35,8 +35,7 @@ namespace ExpressionInterpreter
 
         private void GraphButtonClicked(object sender, RoutedEventArgs e)
         {
-            PlotWindow plotwindow = new PlotWindow();
-            plotwindow.Show();
+            MainContent.Content = new PlotView();
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using System.Windows.Controls;
+using System;
 using System.Windows;
 using OxyPlot;
 using OxyPlot.Axes;
@@ -6,14 +7,11 @@ using OxyPlot.Series;
 
 namespace ExpressionInterpreter
 {
-    /// <summary>
-    /// Interaction logic for PlotWindow.xaml
-    /// </summary>
-    public partial class PlotWindow : Window
+    public partial class PlotView : UserControl
     {
         public PlotModel Model { get; set; }
 
-        public PlotWindow()
+        public PlotView()
         {
             InitializeComponent();
 
