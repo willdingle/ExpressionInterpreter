@@ -47,8 +47,11 @@ module Interpreter =
             | c :: tail when isdigit c -> let (iStr, iVal) = scInt(tail, intVal c)
                                           if(iStr.Length > 0 && iStr.Head = 'E') then Num iVal :: E :: scan iStr.Tail else Num iVal :: scan iStr
             | c :: tail when isLetter c -> let (iStr, cVal) = scString(tail, string c)
-                                           let rec checkinput input = match input with
+                                           let checkinput input = match input with
                                                                       | "cos" -> OP "cos" :: scan iStr
+                                                                      | "tan" -> OP "tan" :: scan iStr
+                                                                      | "sin" -> OP "sin" :: scan iStr
+                                                                      | "log" -> OP "log" :: scan iStr
                                                                       | _ -> Var cVal :: scan iStr
                                            checkinput cVal
             | _ -> raise (System.Exception("Lexer error: Invalid character"))
@@ -66,7 +69,7 @@ module Interpreter =
     //<F>        ::= <U> <Fopt>
     //<Fopt>     ::= "^" <U> <Fopt> | <empty>
     //<U>        ::= "-" <NR> | <NR> 
-    //<NR>       ::= "Num" <value> <NReopt> | "(" <E> ")" | "Var" <variable>
+    //<NR>       ::= "Num" <value> <NReopt> | "(" <E> ")" | "Var" <variable> | "OP" "(" <E> ")"
     //<NReopt>   ::= "e" <Eexp> | <empty>
     //<Eexp>     ::= "-" <value> | <value> | "(" <E> ")"
 
@@ -113,6 +116,14 @@ module Interpreter =
             | _-> NR tList
         and NR tList =
             match tList with 
+            | OP name :: Lpar :: tail -> let (tLst, tval) = E tail
+                                         match tLst with 
+                                         | Rpar :: tail -> (tail,(fun input -> match input with 
+                                                                               |"cos" ->Math.Cos(tval)
+                                                                               |"tan" -> Math.Tan(tval)
+                                                                               |"log" -> Math.Log(tval)
+                                                                               |"sin" -> Math.Sin(tval)
+                                                                               ) name)
             | Num value :: Dot :: Num value2 :: tail -> (tail, (float)((string) value + "." + (string)value2))
             | Num value :: E :: exp -> let (tLst,eVal)  = Eexp exp
                                        (tLst,(float)value * (10.0 ** eVal))
