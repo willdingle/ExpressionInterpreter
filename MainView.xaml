@@ -1,0 +1,38 @@
+﻿<UserControl x:Class="ExpressionInterpreter.MainView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ExpressionInterpreter"
+             mc:Ignorable="d" 
+             d:DesignHeight="720" d:DesignWidth="1280">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0">
+            <Label FontSize="20">Input:</Label>
+            <TextBox x:Name="inputBox" FontSize="20" Text="" KeyUp="InputBoxKeyUp"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="1">
+            <Label FontSize="20">Output:</Label>
+            <TextBox IsReadOnly="True" x:Name="outputBox" FontSize="20" Text=""/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="2">
+            <Label FontSize="20">Errors:</Label>
+            <TextBox IsReadOnly="True" x:Name="errorBox" FontSize="20" Text=""/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="3">
+            <Label FontSize="20">Tokens:</Label>
+            <TextBox IsReadOnly="True" x:Name="sListBox" FontSize="20" Text=""/>
+        </StackPanel>
+        
+    </Grid>
+</UserControl>

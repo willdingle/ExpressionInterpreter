@@ -10,7 +10,7 @@ open System.Collections.Generic
 module Interpreter = 
 
     type terminal = 
-        Add | Sub | Mul | Div | Lpar | Rpar | Mod | Pow | Var of String | Equ | Dot| Num of int | E
+        Add | Sub | Mul | Div | Lpar | Rpar | Mod | Pow | Var of String | Equ | Dot| Num of int | E | OP of string
 
     let str2lst s = [for c in s -> c]
     let isblank c = System.Char.IsWhiteSpace c
@@ -45,9 +45,12 @@ module Interpreter =
             | '.'::tail -> Dot :: scan tail
             | c :: tail when isblank c -> scan tail
             | c :: tail when isdigit c -> let (iStr, iVal) = scInt(tail, intVal c)
-                                          if(iStr.Length > 0 && (iStr.Head = 'E' || iStr.Head = 'e')) then Num iVal :: E :: scan iStr.Tail else Num iVal :: scan iStr
+                                          if(iStr.Length > 0 && iStr.Head = 'E') then Num iVal :: E :: scan iStr.Tail else Num iVal :: scan iStr
             | c :: tail when isLetter c -> let (iStr, cVal) = scString(tail, string c)
-                                           Var cVal :: scan iStr
+                                           let rec checkinput input = match input with
+                                                                      | "cos" -> OP "cos" :: scan iStr
+                                                                      | _ -> Var cVal :: scan iStr
+                                           checkinput cVal
             | _ -> raise (System.Exception("Lexer error: Invalid character"))
         scan (str2lst input)
 
@@ -65,8 +68,11 @@ module Interpreter =
     //<U>        ::= "-" <NR> | <NR> 
     //<NR>       ::= "Num" <value> <NReopt> | "(" <E> ")" | "Var" <variable>
     //<NReopt>   ::= "e" <Eexp> | <empty>
-    //<Eexp>     ::= "+" <value> | "-" <value> | <value>
+    //<Eexp>     ::= "-" <value> | <value> | "(" <E> ")"
 
+
+    //Use this later for the variables
+    //type realNum = {FLOAT:float;INT:int}
 
     //Check with evaluation
     let parseNeval (tList,varTable:Dictionary<string,double>) = 
@@ -124,9 +130,12 @@ module Interpreter =
             | _ -> raise (System.Exception("Parser error: Invalid expression"))
         and Eexp tList = 
             match tList with
-            | Add :: Num value :: tail -> (tail,value)
             | Sub :: Num value :: tail -> (tail,-value)
             | Num value :: tail -> (tail,value)
+            | Lpar :: tail -> let (tLst, tval) = E tail
+                              match tLst with 
+                              | Rpar :: tail -> (tail, tval)
+                              | _ -> raise (System.Exception("Parser error: Open bracket was not closed"))
             | _ -> raise (System.Exception("Parser error: Invalid expression"))
         E tList
 
