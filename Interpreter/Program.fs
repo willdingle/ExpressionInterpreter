@@ -1,6 +1,6 @@
 ﻿// Simple Interpreter in F#
-// Author: R.J. Lapeer 
-// Date: 23/10/2022
+// Authors: Arthur C ,Will D ,Yucheng B
+// Date: 04/11/2024
 // Reference: Peter Sestoft, Grammars and parsing with F#, Tech. Report
 
 namespace FsharpLib
