@@ -7,8 +7,13 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
-        <TextBlock Grid.Column="1" HorizontalAlignment="Center" Margin="0,84,0,0" TextWrapping="Wrap" FontSize="25" Text="Help" VerticalAlignment="Top"/>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
 
-
+        <TextBlock Grid.Row="0" HorizontalAlignment="Center" FontSize="25" Text="Help" VerticalAlignment="Top"/>
     </Grid>
 </UserControl>

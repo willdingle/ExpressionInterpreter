@@ -5,23 +5,34 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:ExpressionInterpreter"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="2*"/>
-            <ColumnDefinition Width="23*"/>
-        </Grid.ColumnDefinitions>
+             d:DesignHeight="720" d:DesignWidth="1280">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
 
-        <TextBlock Grid.Column="1" HorizontalAlignment="Left" Margin="0,84,0,0" TextWrapping="Wrap" FontSize="25" Text="Input:" VerticalAlignment="Top"/>
-        <TextBox x:Name="inputBox" Grid.Column="1" HorizontalAlignment="Left" Margin="0,122,0,0" TextWrapping="Wrap" FontSize="16" Text="" VerticalAlignment="Top" Width="698" Height="30" KeyUp="InputBoxKeyUp"/>
+        <StackPanel Grid.Row="0">
+            <Label FontSize="20">Input:</Label>
+            <TextBox x:Name="inputBox" FontSize="20" Text="" KeyUp="InputBoxKeyUp"/>
+        </StackPanel>
 
-        <TextBlock Grid.Column="1" HorizontalAlignment="Left" Margin="0,174,0,0" TextWrapping="Wrap" FontSize="25" Text="Output:" VerticalAlignment="Top"/>
-        <TextBox IsReadOnly="True" x:Name="outputBox" Grid.Column="1" HorizontalAlignment="Left" Margin="0,212,0,0" TextWrapping="Wrap" FontSize="16" Text="" VerticalAlignment="Top" Width="698" Height="30"/>
+        <StackPanel Grid.Row="1">
+            <Label FontSize="20">Output:</Label>
+            <TextBox IsReadOnly="True" x:Name="outputBox" FontSize="20" Text=""/>
+        </StackPanel>
 
-        <TextBlock Grid.Column="1" HorizontalAlignment="Left" Margin="0,283,0,0" TextWrapping="Wrap" FontSize="25" VerticalAlignment="Top"><Run Language="en-gb" Text="Errors:"/></TextBlock>
-        <TextBox IsReadOnly="True" x:Name="errorBox" Grid.Column="1" HorizontalAlignment="Left" Margin="0,321,0,0" TextWrapping="Wrap" FontSize="16" Text="" VerticalAlignment="Top" Width="698" Height="30"/>
+        <StackPanel Grid.Row="2">
+            <Label FontSize="20">Errors:</Label>
+            <TextBox IsReadOnly="True" x:Name="errorBox" FontSize="20" Text=""/>
+        </StackPanel>
 
-        <TextBlock Grid.Column="1" HorizontalAlignment="Left" Margin="0,359,0,0" TextWrapping="Wrap" FontSize="25" VerticalAlignment="Top"><Run Language="en-gb" Text="sList:"/></TextBlock>
-        <TextBox IsReadOnly="True" x:Name="sListBox" Grid.Column="1" HorizontalAlignment="Left" Margin="0,397,0,0" TextWrapping="Wrap" FontSize="16" Text="" VerticalAlignment="Top" Width="698" Height="30"/>
+        <StackPanel Grid.Row="3">
+            <Label FontSize="20">Tokens:</Label>
+            <TextBox IsReadOnly="True" x:Name="sListBox" FontSize="20" Text=""/>
+        </StackPanel>
+        
     </Grid>
 </UserControl>
