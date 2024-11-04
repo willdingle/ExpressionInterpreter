@@ -63,11 +63,7 @@ namespace ExpressionInterpreter
                 catch (Exception ex)
                 {
                     errorBox.Text = ex.Message;
-                }
-                
-
-                
-                
+                }                
             }
         }
     }

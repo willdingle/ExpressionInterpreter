@@ -28,6 +28,7 @@ module Interpreter =
         c :: tail when isLetter c || isdigit c -> scString(tail, cVal + string c)
         | _ -> (iStr, cVal)
 
+
     let lexer input = 
         let rec scan input =
             match input with
@@ -42,10 +43,9 @@ module Interpreter =
             | ')'::tail -> Rpar:: scan tail
             | '='::tail -> Equ :: scan tail
             | '.'::tail -> Dot :: scan tail
-            | 'e'::tail -> E :: scan tail
             | c :: tail when isblank c -> scan tail
             | c :: tail when isdigit c -> let (iStr, iVal) = scInt(tail, intVal c)
-                                          Num iVal :: scan iStr
+                                          if(iStr.Length > 0 && (iStr.Head = 'E' || iStr.Head = 'e')) then Num iVal :: E :: scan iStr.Tail else Num iVal :: scan iStr
             | c :: tail when isLetter c -> let (iStr, cVal) = scString(tail, string c)
                                            Var cVal :: scan iStr
             | _ -> raise (System.Exception("Lexer error: Invalid character"))
