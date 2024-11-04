@@ -22,6 +22,8 @@ namespace ExpressionInterpreter
         public MainWindow()
         {
             InitializeComponent();
+            PlotWindow plotwindow = new PlotWindow();
+            plotwindow.Show();
         }
 
         private void InputBoxKeyUp(object sender, KeyEventArgs e)

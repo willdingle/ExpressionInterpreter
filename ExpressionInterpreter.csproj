@@ -12,4 +12,12 @@
     <ProjectReference Include="Interpreter\Interpreter.fsproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="OxyPlot.Wpf" Version="2.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Oxyplot\" />
+  </ItemGroup>
+
 </Project>
