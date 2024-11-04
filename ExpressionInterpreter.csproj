@@ -17,7 +17,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="HelpPages\" />
+    <Compile Update="HelpPages\Plotting.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="HelpPages\Variables.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
 
 </Project>

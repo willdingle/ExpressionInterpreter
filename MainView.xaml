@@ -26,7 +26,7 @@
 
         <StackPanel Grid.Row="2">
             <Label FontSize="20">Errors:</Label>
-            <TextBox IsReadOnly="True" x:Name="errorBox" FontSize="20" Text=""/>
+            <TextBox Foreground="Red" IsReadOnly="True" x:Name="errorBox" FontSize="20" Text=""/>
         </StackPanel>
 
         <StackPanel Grid.Row="3">

@@ -23,8 +23,8 @@
             </Grid.ColumnDefinitions>
 
             <Button Grid.Column="0" Content="Operators" Click="OperatorsHelpButtonClicked"/>
-            <Button Grid.Column="1" Content="Variables"/>
-            <Button Grid.Column="2" Content="Plotting"/>
+            <Button Grid.Column="1" Content="Variables" Click="VariablesHelpButtonClicked"/>
+            <Button Grid.Column="2" Content="Plotting" Click="PlottingHelpButtonClicked"/>
         </Grid>
 
         <ContentControl Grid.Row="2" Name="HelpContent" />

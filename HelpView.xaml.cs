@@ -30,5 +30,15 @@ namespace ExpressionInterpreter
         {
             HelpContent.Content = new Operators();
         }
+
+        private void VariablesHelpButtonClicked(object sender, RoutedEventArgs e)
+        {
+            HelpContent.Content = new Variables();
+        }
+
+        private void PlottingHelpButtonClicked(object sender, RoutedEventArgs e)
+        {
+            HelpContent.Content = new Plotting();
+        }
     }
 }
