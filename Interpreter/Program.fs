@@ -45,7 +45,7 @@ module Interpreter =
             | '.'::tail -> Dot :: scan tail
             | c :: tail when isblank c -> scan tail
             | c :: tail when isdigit c -> let (iStr, iVal) = scInt(tail, intVal c)
-                                          if(iStr.Length > 0 && (iStr.Head = 'E' || iStr.Head = 'e')) then Num iVal :: E :: scan iStr.Tail else Num iVal :: scan iStr
+                                          if(iStr.Length > 0 && iStr.Head = 'E') then Num iVal :: E :: scan iStr.Tail else Num iVal :: scan iStr
             | c :: tail when isLetter c -> let (iStr, cVal) = scString(tail, string c)
                                            Var cVal :: scan iStr
             | _ -> raise (System.Exception("Lexer error: Invalid character"))

@@ -17,54 +17,20 @@ namespace ExpressionInterpreter
     public partial class MainWindow : Window
     {
 
-        private readonly Dictionary<string, double> varTable = [];
-
         public MainWindow()
         {
             InitializeComponent();
+            MainContent.Content = new MainView();
         }
 
-        private void InputBoxKeyUp(object sender, KeyEventArgs e)
+        private void MainButtonClicked(object sender, RoutedEventArgs e)
         {
-            if (e.Key == Key.Enter)
-            {
-                //MessageBox.Show(inputBox.Text);
+            MainContent.Content = new MainView();
+        }
 
-                // Process inputted code
-                outputBox.Text = "";
-                errorBox.Text = "";
-                sListBox.Text = "";
-                
-                try
-                {
-                    var oList = Interpreter.lexer(inputBox.Text);
-
-                    try
-                    {
-                        var Out = Interpreter.parseNeval(oList, varTable);
-                        outputBox.Text = Out.Item2.ToString();
-                    }
-                    catch (Exception ex)
-                    {
-                        errorBox.Text = ex.Message;
-                    }
-                    
-                    // Output data from lexer
-                    string sListStr = "";
-                    for (int i = 0; i < oList.Length; i++)
-                    {
-                        sListStr += oList[i] + " , ";
-                    }
-                    Trace.WriteLine(sListStr);
-                    sListBox.Text = sListStr;
-                    e.Handled = true;
-                    
-                }
-                catch (Exception ex)
-                {
-                    errorBox.Text = ex.Message;
-                }                
-            }
+        private void HelpButtonClicked(object sender, RoutedEventArgs e)
+        {
+            MainContent.Content = new HelpView();
         }
     }
 }
