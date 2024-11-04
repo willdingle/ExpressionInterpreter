@@ -21,9 +21,19 @@
 
             <TextBlock Grid.Column="1" TextWrapping="Wrap" TextAlignment="Center" FontSize="35" FontWeight="Bold" Text="Expression Interpreter" VerticalAlignment="Center"/>
 
-            <Button Grid.Column="0" Margin="10" Width="100" Height="40" VerticalAlignment="Top" x:Name="HelpButton" Content="Help" Click="HelpButtonClicked"/>
+            <Button Grid.Column="2" Margin="10" Width="100" Height="40" VerticalAlignment="Top" x:Name="HelpButton" Content="Help" Click="HelpButtonClicked"/>
 
-            <Button Grid.Column="2" Margin="10" Width="100" Height="40" VerticalAlignment="Top" x:Name="MainButton" Content="Main" Click="MainButtonClicked"/>
+            <Grid Grid.Column="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Button Grid.Column="0" Margin="10" Width="100" Height="40" VerticalAlignment="Top" x:Name="MainButton" Content="Main" Click="MainButtonClicked"/>
+                <Button Grid.Column="1" Margin="10" Width="100" Height="40" VerticalAlignment="Top" x:Name="GraphViewButton" Content="Graph" Click="GraphButtonClicked"/>
+
+            </Grid>
+
         </Grid>
 
         <ContentControl Grid.Row="1" Name="MainContent" />

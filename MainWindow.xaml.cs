@@ -20,8 +20,6 @@ namespace ExpressionInterpreter
         public MainWindow()
         {
             InitializeComponent();
-            PlotWindow plotwindow = new PlotWindow();
-            plotwindow.Show();
             MainContent.Content = new MainView();
         }
 
@@ -33,6 +31,12 @@ namespace ExpressionInterpreter
         private void HelpButtonClicked(object sender, RoutedEventArgs e)
         {
             MainContent.Content = new HelpView();
+        }
+
+        private void GraphButtonClicked(object sender, RoutedEventArgs e)
+        {
+            PlotWindow plotwindow = new PlotWindow();
+            plotwindow.Show();
         }
     }
 }

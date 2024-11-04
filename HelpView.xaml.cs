@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using ExpressionInterpreter.HelpPages;
 
 namespace ExpressionInterpreter
 {
@@ -23,6 +24,11 @@ namespace ExpressionInterpreter
         public HelpView()
         {
             InitializeComponent();
+        }
+
+        private void OperatorsHelpButtonClicked(object sender, RoutedEventArgs e)
+        {
+            HelpContent.Content = new Operators();
         }
     }
 }
