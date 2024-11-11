@@ -16,26 +16,32 @@ namespace ExpressionInterpreter
 {
     public partial class MainWindow : Window
     {
+        MainView mainView;
+        HelpView helpView;
+        PlotView plotView;
 
         public MainWindow()
         {
             InitializeComponent();
-            MainContent.Content = new MainView();
+            mainView = new MainView();
+            helpView = new HelpView();
+            plotView = new PlotView();
+            MainContent.Content = mainView;
         }
 
         private void MainButtonClicked(object sender, RoutedEventArgs e)
         {
-            MainContent.Content = new MainView();
+            MainContent.Content = mainView;
         }
 
         private void HelpButtonClicked(object sender, RoutedEventArgs e)
         {
-            MainContent.Content = new HelpView();
+            MainContent.Content = helpView;
         }
 
         private void GraphButtonClicked(object sender, RoutedEventArgs e)
         {
-            MainContent.Content = new PlotView();
+            MainContent.Content = plotView;
         }
     }
 }
