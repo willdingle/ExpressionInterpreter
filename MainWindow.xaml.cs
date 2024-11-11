@@ -18,14 +18,12 @@ namespace ExpressionInterpreter
     {
         MainView mainView;
         HelpView helpView;
-        PlotView plotView;
 
         public MainWindow()
         {
             InitializeComponent();
             mainView = new MainView();
             helpView = new HelpView();
-            plotView = new PlotView();
             MainContent.Content = mainView;
         }
 
@@ -37,11 +35,6 @@ namespace ExpressionInterpreter
         private void HelpButtonClicked(object sender, RoutedEventArgs e)
         {
             MainContent.Content = helpView;
-        }
-
-        private void GraphButtonClicked(object sender, RoutedEventArgs e)
-        {
-            MainContent.Content = plotView;
         }
     }
 }

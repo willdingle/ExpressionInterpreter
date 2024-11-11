@@ -20,7 +20,8 @@ namespace ExpressionInterpreter.HelpPages
         public Plotting()
         {
             InitializeComponent();
-            PlottingHelp.Text = "Plotting help goes here.";
+            PlottingHelp.Text = "Use 'plot [variable]' to plot a line / polynomial.\n" +
+                                "\t\t\tExample( when f(x) = x^2 ): plot f(x)          -->          INSERT PICTURE OF x^2 GRAPH";
         }
     }
 }

@@ -24,10 +24,13 @@ namespace ExpressionInterpreter
     {
 
         private readonly Dictionary<string, double> varTable = [];
+        PlotView plotView;
 
         public MainView()
         {
             InitializeComponent();
+            plotView = new PlotView();
+            PlotContent.Content = plotView;
         }
 
         private void InputBoxKeyUp(object sender, KeyEventArgs e)

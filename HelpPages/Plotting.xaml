@@ -9,8 +9,10 @@
     <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <TextBlock Name="PlottingHelp" Grid.Row ="0" TextWrapping="Wrap" Text=""/>
+        <Image x:Name="xSquaredGraphPic" HorizontalAlignment="Left" Height="300" Grid.Row="1" VerticalAlignment="Top" Width="300"/>
     </Grid>
 </UserControl>
