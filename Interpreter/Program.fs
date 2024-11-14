@@ -9,6 +9,8 @@ open System.Collections.Generic
 
 module Interpreter = 
 
+    //Use this later for the variables
+    
     type terminal = 
         Add | Sub | Mul | Div | Lpar | Rpar | Mod | Pow | Var of String | Equ | Dot| Num of int | E | OP of string
 
@@ -57,12 +59,9 @@ module Interpreter =
             | _ -> raise (System.Exception("Lexer error: Invalid character"))
         scan (str2lst input)
 
-    let getInputString() : string = 
-        Console.Write("Enter an expression: ")
-        Console.ReadLine()
-
+        // f(x) = 
    // BNF:
-    //<E>        ::= <T> <Eopt> | "Var" <variable> "=" <E>
+    //<E>        ::= <T> <Eopt> | "Var" <variable> "=" <E> | "Func" "(x)" "="  <T><Eopt>
     //<Eopt>     ::= "+" <T> <Eopt> | "-" <T> <Eopt> | <empty>
     //<T>        ::= <F> <Topt>
     //<Topt>     ::= "*" <F> <Topt> | "/" <F> <Topt> | "%" <F> <Topt> | <empty>
@@ -73,12 +72,52 @@ module Interpreter =
     //<NReopt>   ::= "e" <Eexp> | <empty>
     //<Eexp>     ::= "-" <value> | <value> | "(" <E> ")"
 
+    // a: real part
+    // b: imaginary part
+    type complex =
+        val a: int
+        val b: int
 
-    //Use this later for the variables
-    //type realNum = {FLOAT:float;INT:int}
+    // Overloaded the operator for the num values
+    // Because the operators are functions we can call them like (operator) a b. 
+    // So for "(+) 1 1" would return 1 + 1 = 2
+    // Here we are calling performArithmetic and passing the function op and op takes a,b as parameters
+    // performArithmetic checks a and b types and returns the type that matches.
+    // So INT + INT -> INT
+
+    type num = FLOAT of float | INT of int //| COMPLEX of complex
+               member this.GetValue = match this with
+                                        | FLOAT a -> a
+                                        | INT i -> int i
+
+               static member private performArithmetic op (a:num) (b:num) : num =
+                      match a, b with 
+                      | FLOAT x, FLOAT y -> FLOAT (op x y)
+                      | FLOAT x, INT y -> FLOAT (op x (float y))
+                      | INT x, FLOAT y -> FLOAT (op (float x) y)
+                      | INT x, INT y -> INT ((int (op x y)))
+
+               static member (+) (a:num, b:num) = num.performArithmetic (+) a b
+               static member (-) (a:num, b:num) = num.performArithmetic (-) a b
+               static member (*) (a:num, b:num) = num.performArithmetic (*) a b
+               static member (%) (a:num, b:num) = num.performArithmetic (%) a b
+               static member Pow (a:num, b:num) = let pow (x: float) (y: float) = x ** y
+                                                  num.performArithmetic pow a b
+               static member (/) (a:num, b:num) = match a, b with 
+                                                  | INT x, INT y when y <> 0 -> FLOAT (float x / float y) 
+                                                  | FLOAT x, FLOAT y when y <> 0.0 -> FLOAT (x / y) 
+                                                  | FLOAT x, INT y when y <> 0 -> FLOAT (x / float y) 
+                                                  | INT x, FLOAT y when y <> 0.0 -> FLOAT (float x / y) 
+                                                  | _ -> failwith "Parser error: Division by 0"
+        
+    let toNum (value: obj) =
+            match value with
+            | :? int as i -> INT i
+            | :? float as f -> FLOAT f 
+            | _ -> failwith "Unsupported type"
 
     //Check with evaluation
-    let parseNeval (tList,varTable:Dictionary<string,double>) = 
+    let parseNeval (tList,varTable:Dictionary<string,num>) = 
         let rec E tList = 
             match tList with
             | Var name :: Equ :: tail -> let (tList, value) = E tail
@@ -96,9 +135,9 @@ module Interpreter =
         and Topt (tList, value) =
             match tList with
             | Mul :: tail -> let (tLst, tval) = F tail
-                             Topt (tLst, value * tval)
+                             Topt (tLst,value * tval)
             | Div :: tail -> let (tLst, tval) = F tail
-                             if not (tval = 0.0) then Topt (tLst, value / tval) else raise (System.Exception("Parser error: Division by 0"))
+                             Topt (tLst,value / tval)
             | Mod :: tail -> let (tLst, tval) = F tail
                              Topt (tLst, value % tval)
             | _ -> (tList, value)
@@ -111,38 +150,38 @@ module Interpreter =
         and U tList = 
             match tList with
             | Sub :: tail ->
-                let (tLst,tVal) = NR tail 
-                (tLst,-tVal)
+                let (tLst,tVal:num) = NR tail 
+                (tLst,INT(0) - tVal)
             | _-> NR tList
         and NR tList =
             match tList with 
             | OP name :: Lpar :: tail -> let (tLst, tval) = E tail
                                          match tLst with 
                                          | Rpar :: tail -> (tail,(fun input -> match input with 
-                                                                               |"cos" ->Math.Cos(tval)
-                                                                               |"tan" -> Math.Tan(tval)
-                                                                               |"log" -> Math.Log(tval)
-                                                                               |"sin" -> Math.Sin(tval)
-                                                                               ) name)
-            | Num value :: Dot :: Num value2 :: tail -> (tail, (float)((string) value + "." + (string)value2))
-            | Num value :: E :: exp -> let (tLst,eVal)  = Eexp exp
-                                       (tLst,(float)value * (10.0 ** eVal))
-            | Sub :: Num value :: tail -> (tail, -value)
+                                                                                      |"cos" -> FLOAT(Math.Cos(tval.GetValue))
+                                                                                      |"tan" -> FLOAT(Math.Tan(tval.GetValue))
+                                                                                      |"log" -> FLOAT(Math.Log(tval.GetValue))
+                                                                                      |"sin" -> FLOAT(Math.Sin(tval.GetValue))
+                                                                                      ) name)
+            | Num value :: Dot :: Num value2 :: tail -> (tail, FLOAT((float)((string) value + "." + (string)value2)))
+            | Num value :: E :: exp -> let (tLst,eVal : num)  = Eexp exp
+                                       (tLst, FLOAT((float)(value) * (10.0 ** (eVal.GetValue))))
+            | Sub :: Num value :: tail -> (tail, INT(-value))
             | Num value :: Equ :: tail -> raise (System.Exception("Parser error: Number used as a variable name"))
-            | Num value :: tail -> (tail, value)
+            | Num value :: tail -> (tail, INT(value))
             | Lpar :: tail -> let (tLst, tval) = E tail
                               match tLst with 
                               | Rpar :: tail -> (tail, tval)
                               | _ -> raise (System.Exception("Parser error: Open bracket was not closed"))
-            | Sub :: Var name:: tail -> (tail, -varTable.[name])
+            | Sub :: Var name:: tail -> (tail, INT(0) - varTable.[name])
             | Var name:: tail -> try (tail, varTable.[name])
                                  with
                                     | :? System.Collections.Generic.KeyNotFoundException -> raise (System.Exception("Parser error: Variable not declared"))
             | _ -> raise (System.Exception("Parser error: Invalid expression"))
         and Eexp tList = 
             match tList with
-            | Sub :: Num value :: tail -> (tail,-value)
-            | Num value :: tail -> (tail,value)
+            | Sub :: Num value :: tail -> (tail,INT(-value))
+            | Num value :: tail -> (tail,INT(value))
             | Lpar :: tail -> let (tLst, tval) = E tail
                               match tLst with 
                               | Rpar :: tail -> (tail, tval)
@@ -174,11 +213,3 @@ module Interpreter =
                               | _ -> raise parseError
             | _ -> raise parseError
         E tList*)
-
-    let rec printTList (lst:list<terminal>) : list<string> = 
-        match lst with
-        head::tail -> Console.Write("{0} ",head.ToString())
-                      printTList tail
-                  
-        | [] -> Console.Write("EOL\n")
-                []

@@ -1,9 +1,11 @@
-﻿using FsharpLib;
+﻿using ExpressionInterpreter.HelpPages;
+using FsharpLib;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -14,6 +16,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using static FsharpLib.Interpreter.num;
 
 namespace ExpressionInterpreter
 {
@@ -23,7 +26,7 @@ namespace ExpressionInterpreter
     public partial class MainView : UserControl
     {
 
-        private readonly Dictionary<string, double> varTable = [];
+        private readonly Dictionary<string, FsharpLib.Interpreter.num> varTable = [];
         PlotView plotView;
 
         public MainView()
@@ -51,6 +54,9 @@ namespace ExpressionInterpreter
                     try
                     {
                         var Out = Interpreter.parseNeval(oList, varTable);
+
+                        
+
                         outputBox.Text = Out.Item2.ToString();
                     }
                     catch (Exception ex)
