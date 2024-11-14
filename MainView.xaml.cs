@@ -27,6 +27,7 @@ namespace ExpressionInterpreter
     {
 
         private readonly Dictionary<string, FsharpLib.Interpreter.num> varTable = [];
+        private readonly Dictionary<string, string> funcTable = [];
         PlotView plotView;
 
         public MainView()
@@ -53,9 +54,11 @@ namespace ExpressionInterpreter
 
                     try
                     {
-                        var Out = Interpreter.parseNeval(oList, varTable);
-
-                        
+                        var Out = Interpreter.parseNeval(oList, varTable, funcTable);
+                        foreach (var func in funcTable)
+                        {
+                            Trace.WriteLine(func);
+                        }
 
                         outputBox.Text = Out.Item2.ToString();
                     }

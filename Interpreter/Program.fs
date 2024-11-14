@@ -1,5 +1,5 @@
 ﻿// Simple Interpreter in F#
-// Authors: Arthur C ,Will D ,Yucheng B
+// Authors: Arthur Coombes, Will Dingle, Yucheng Bian
 // Date: 04/11/2024
 // Reference: Peter Sestoft, Grammars and parsing with F#, Tech. Report
 
@@ -12,7 +12,7 @@ module Interpreter =
     //Use this later for the variables
     
     type terminal = 
-        Add | Sub | Mul | Div | Lpar | Rpar | Mod | Pow | Var of String | Equ | Dot| Num of int | E | OP of string
+        Add | Sub | Mul | Div | Lpar | Rpar | Mod | Pow | Var of String | Equ | Dot | Num of int | E | OP of string | Func
 
     let str2lst s = [for c in s -> c]
     let isblank c = System.Char.IsWhiteSpace c
@@ -49,12 +49,14 @@ module Interpreter =
             | c :: tail when isdigit c -> let (iStr, iVal) = scInt(tail, intVal c)
                                           if(iStr.Length > 0 && iStr.Head = 'E') then Num iVal :: E :: scan iStr.Tail else Num iVal :: scan iStr
             | c :: tail when isLetter c -> let (iStr, cVal) = scString(tail, string c)
-                                           let checkinput input = match input with
-                                                                      | "cos" -> OP "cos" :: scan iStr
-                                                                      | "tan" -> OP "tan" :: scan iStr
-                                                                      | "sin" -> OP "sin" :: scan iStr
-                                                                      | "log" -> OP "log" :: scan iStr
-                                                                      | _ -> Var cVal :: scan iStr
+                                           let checkinput input = 
+                                               match input with
+                                                   | "cos" -> OP "cos" :: scan iStr
+                                                   | "tan" -> OP "tan" :: scan iStr
+                                                   | "sin" -> OP "sin" :: scan iStr
+                                                   | "log" -> OP "log" :: scan iStr
+                                                   | "f" -> Func :: scan iStr
+                                                   | _ -> Var cVal :: scan iStr
                                            checkinput cVal
             | _ -> raise (System.Exception("Lexer error: Invalid character"))
         scan (str2lst input)
@@ -117,13 +119,15 @@ module Interpreter =
             | _ -> failwith "Unsupported type"
 
     //Check with evaluation
-    let parseNeval (tList,varTable:Dictionary<string,num>) = 
+    let parseNeval (tList,varTable:Dictionary<string,num>,funcTable:Dictionary<string,string>) = 
         let rec E tList = 
             match tList with
             | Var name :: Equ :: tail -> let (tList, value) = E tail
                                          varTable.[name] <- value
                                          (tList, value)
-            | _-> (T >> Eopt) tList
+            | Func :: Lpar :: name :: Rpar :: Equ :: tail -> funcTable.[string name] <- string tail
+                                                             (tList, toNum 0)
+            | _ -> (T >> Eopt) tList
         and Eopt (tList, value) = 
             match tList with
             | Add :: tail -> let (tLst, tval) = T tail
@@ -158,10 +162,10 @@ module Interpreter =
             | OP name :: Lpar :: tail -> let (tLst, tval) = E tail
                                          match tLst with 
                                          | Rpar :: tail -> (tail,(fun input -> match input with 
-                                                                                      |"cos" -> FLOAT(Math.Cos(tval.GetValue))
-                                                                                      |"tan" -> FLOAT(Math.Tan(tval.GetValue))
-                                                                                      |"log" -> FLOAT(Math.Log(tval.GetValue))
-                                                                                      |"sin" -> FLOAT(Math.Sin(tval.GetValue))
+                                                                                      | "cos" -> FLOAT(Math.Cos(tval.GetValue))
+                                                                                      | "tan" -> FLOAT(Math.Tan(tval.GetValue))
+                                                                                      | "log" -> FLOAT(Math.Log(tval.GetValue))
+                                                                                      | "sin" -> FLOAT(Math.Sin(tval.GetValue))
                                                                                       ) name)
             | Num value :: Dot :: Num value2 :: tail -> (tail, FLOAT((float)((string) value + "." + (string)value2)))
             | Num value :: E :: exp -> let (tLst,eVal : num)  = Eexp exp
