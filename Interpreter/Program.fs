@@ -63,7 +63,7 @@ module Interpreter =
 
         // f(x) = 
    // BNF:
-    //<E>        ::= <T> <Eopt> | "Var" <variable> "=" <E> | "Func" "(x)" "="  <T><Eopt>
+    //<E>        ::= <T> <Eopt> | "Var" <variable> "=" <E> | "Func" "(x)" "="  <E>
     //<Eopt>     ::= "+" <T> <Eopt> | "-" <T> <Eopt> | <empty>
     //<T>        ::= <F> <Topt>
     //<Topt>     ::= "*" <F> <Topt> | "/" <F> <Topt> | "%" <F> <Topt> | <empty>
@@ -125,8 +125,9 @@ module Interpreter =
             | Var name :: Equ :: tail -> let (tList, value) = E tail
                                          varTable.[name] <- value
                                          (tList, value)
-            | Func :: Lpar :: name :: Rpar :: Equ :: tail -> funcTable.[string name] <- string tail
-                                                             (tList, toNum 0)
+            | Func :: Lpar :: name :: Rpar :: Equ :: tail -> let (tList,value) = E tail
+                                                             funcTable.[string name] <- string tail
+                                                             (tList, value)
             | _ -> (T >> Eopt) tList
         and Eopt (tList, value) = 
             match tList with
