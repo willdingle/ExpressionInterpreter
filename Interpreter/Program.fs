@@ -12,7 +12,7 @@ module Interpreter =
     //Use this later for the variables
     
     type terminal = 
-        Add | Sub | Mul | Div | Lpar | Rpar | Mod | Pow | Var of String | Equ | Dot | Num of int | E | OP of string | Func
+        Add | Sub | Mul | Div | Lpar | Rpar | Mod | Pow | Var of String | Equ | Dot | Num of int | E | OP of string | Func | Plot
 
     let str2lst s = [for c in s -> c]
     let isblank c = System.Char.IsWhiteSpace c
@@ -56,6 +56,7 @@ module Interpreter =
                                                    | "sin" -> OP "sin" :: scan iStr
                                                    | "log" -> OP "log" :: scan iStr
                                                    | "f" -> Func :: scan iStr
+                                                   | "plot" -> Plot :: scan iStr
                                                    | _ -> Var cVal :: scan iStr
                                            checkinput cVal
             | _ -> raise (System.Exception("Lexer error: Invalid character"))
@@ -168,6 +169,12 @@ module Interpreter =
                                                                                       | "log" -> FLOAT(Math.Log(tval.GetValue))
                                                                                       | "sin" -> FLOAT(Math.Sin(tval.GetValue))
                                                                                       ) name)
+                                         | _ -> raise (System.Exception("Parser error: Incorrect use of built-in function"))
+            | Plot :: Func :: Lpar :: name :: Rpar :: tail -> try 
+                                                                let temp = funcTable.[string name]
+                                                                (tail, toNum 0)
+                                                              with
+                                                                | :? System.Collections.Generic.KeyNotFoundException -> raise (System.Exception("Parser error: Function not declared"))
             | Num value :: Dot :: Num value2 :: tail -> (tail, FLOAT((float)((string) value + "." + (string)value2)))
             | Num value :: E :: exp -> let (tLst,eVal : num)  = Eexp exp
                                        (tLst, FLOAT((float)(value) * (10.0 ** (eVal.GetValue))))
@@ -179,9 +186,14 @@ module Interpreter =
                               | Rpar :: tail -> (tail, tval)
                               | _ -> raise (System.Exception("Parser error: Open bracket was not closed"))
             | Sub :: Var name:: tail -> (tail, INT(0) - varTable.[name])
-            | Var name:: tail -> try (tail, varTable.[name])
-                                 with
+            | Var name :: tail -> try (tail, varTable.[name])
+                                  with
                                     | :? System.Collections.Generic.KeyNotFoundException -> raise (System.Exception("Parser error: Variable not declared"))
+            | Func :: Lpar :: name :: Rpar :: tail -> try
+                                                        let temp = funcTable.[string name]
+                                                        (tail, toNum 0)
+                                                      with
+                                                        | :? System.Collections.Generic.KeyNotFoundException -> raise (System.Exception("Parser error: Function not declared"))
             | _ -> raise (System.Exception("Parser error: Invalid expression"))
         and Eexp tList = 
             match tList with

@@ -60,7 +60,21 @@ namespace ExpressionInterpreter
                             Trace.WriteLine(func);
                         }
 
-                        outputBox.Text = Out.Item2.ToString();
+                        // Plot the function inputted
+                        if (oList.Contains(Interpreter.terminal.Plot))
+                        {
+                            Trace.WriteLine("plot graph " + funcTable["" + oList[3]]);
+                            outputBox.Text = "plot graph " + funcTable["" + oList[3]];
+                        }
+                        else if (oList.Contains(Interpreter.terminal.Func))
+                        {
+                            outputBox.Text = funcTable["" + oList[2]];
+                        }
+                        else
+                        {
+                            outputBox.Text = Out.Item2.ToString();
+                        }
+                       
                     }
                     catch (Exception ex)
                     {
