@@ -22,22 +22,22 @@
 
             <StackPanel Grid.Column ="0" Grid.Row="0">
                 <Label FontSize="20">Input:</Label>
-                <TextBox x:Name="inputBox" FontSize="20" Text="" KeyUp="InputBoxKeyUp"/>
+                <TextBox x:Name="inputBox" AcceptsReturn="True" FontSize="14" Text="" KeyUp="InputBoxKeyUp"/>
             </StackPanel>
 
             <StackPanel Grid.Column ="0" Grid.Row="1">
                 <Label FontSize="20">Output:</Label>
-                <TextBox IsReadOnly="True" x:Name="outputBox" FontSize="20" Text=""/>
+                <TextBox IsReadOnly="True" x:Name="outputBox" FontSize="14" Text=""/>
             </StackPanel>
 
             <StackPanel Grid.Column ="0" Grid.Row="2">
                 <Label FontSize="20">Errors:</Label>
-                <TextBox Foreground="Red" IsReadOnly="True" x:Name="errorBox" FontSize="20" Text=""/>
+                <TextBox Foreground="Red" IsReadOnly="True" x:Name="errorBox" FontSize="14" Text=""/>
             </StackPanel>
 
             <StackPanel Grid.Column ="0" Grid.Row="3">
                 <Label FontSize="20">Tokens:</Label>
-                <TextBox IsReadOnly="True" x:Name="sListBox" FontSize="20" Text=""/>
+                <TextBox IsReadOnly="True" x:Name="sListBox" FontSize="14" Text=""/>
             </StackPanel>
         </Grid>
 

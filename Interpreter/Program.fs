@@ -204,7 +204,7 @@ module Interpreter =
                                           let (etail,result) = E funcTable.[name]
                                           (tail, result)
                                           with 
-                                          | :? System.Collections.Generic.KeyNotFoundException -> raise (System.Exception("Parser error: Function not declared"))     
+                                          | :? System.Collections.Generic.KeyNotFoundException -> raise (System.Exception($"Parser error: Function '{name}' not declared"))     
 
 
             | Num value :: Dot :: Num value2 :: tail -> (tail, FLOAT((float)((string) value + "." + (string)value2)))
@@ -218,7 +218,7 @@ module Interpreter =
                               | _ -> raise (System.Exception("Parser error: Open bracket was not closed"))
             | Var name :: tail -> try (tail, varTable.[name])
                                   with
-                                    | :? System.Collections.Generic.KeyNotFoundException -> raise (System.Exception("Parser error: Variable not declared"))
+                                    | :? System.Collections.Generic.KeyNotFoundException -> raise (System.Exception($"Parser error: Variable '{name}' not declared"))
             | _ -> raise (System.Exception("Parser error: Invalid expression"))
         and Eexp tList = 
             match tList with

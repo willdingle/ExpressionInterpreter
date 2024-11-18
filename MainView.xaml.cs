@@ -2,6 +2,7 @@
 using FsharpLib;
 using Microsoft.FSharp.Collections;
 using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -40,63 +41,73 @@ namespace ExpressionInterpreter
 
         private void InputBoxKeyUp(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Enter)
+            // Run inputted code
+            if (e.Key == Key.F5)
             {
-                //MessageBox.Show(inputBox.Text);
-
-                // Process inputted code
+                // Clear output boxes
                 outputBox.Text = "";
                 errorBox.Text = "";
                 sListBox.Text = "";
 
-                try
-                {
-                    var oList = Interpreter.lexer(inputBox.Text);
+                // Split up lines of code
+                var codeLines = inputBox.Text.Split("\n");
 
+                //Process each line of code
+                foreach (var codeLine in codeLines)
+                {
                     try
                     {
-                        var Out = Interpreter.parseNeval(oList, varTable, funcTable);
-                        foreach (var func in funcTable)
+                        var oList = Interpreter.lexer(codeLine);
+
+                        try
                         {
-                            Trace.WriteLine(func);
+                            var Out = Interpreter.parseNeval(oList, varTable, funcTable);
+                            foreach (var func in funcTable)
+                            {
+                                Trace.WriteLine(func);
+                            }
+
+                            // Plot the function inputted
+                            if (oList.Contains(Interpreter.terminal.Plot))
+                            {
+                                outputBox.Text += "plot graph " + funcTable["" + oList[3]] + "\n";
+                            }
+                            //else if (oList.Contains(Interpreter.terminal.Func))
+                            //{
+                            //   outputBox.Text = funcTable["" + oList[2]];
+                            //}
+                            else
+                            {
+                                outputBox.Text += Out.Item2.ToString() + "\n";
+                            }
+
+                        }
+                        catch (Exception ex)
+                        {
+                            errorBox.Text += ex.Message + "\n";
                         }
 
-                        // Plot the function inputted
-                        if (oList.Contains(Interpreter.terminal.Plot))
+                        // Output data from lexer
+                        string sListStr = "";
+                        for (int i = 0; i < oList.Length; i++)
                         {
-                            Trace.WriteLine("plot graph " + funcTable["" + oList[3]]);
-                            outputBox.Text = "plot graph " + funcTable["" + oList[3]];
+                            sListStr += oList[i] + " , ";
                         }
-                        //else if (oList.Contains(Interpreter.terminal.Func))
-                        //{
-                         //   outputBox.Text = funcTable["" + oList[2]];
-                        //}
-                        else
-                        {
-                            outputBox.Text = Out.Item2.ToString();
-                        }
-                       
+                        Trace.WriteLine(sListStr);
+                        sListBox.Text = sListStr;
+                        e.Handled = true;
+
                     }
                     catch (Exception ex)
                     {
-                        errorBox.Text = ex.Message;
+                        errorBox.Text += "\n" + ex.Message;
                     }
-
-                    // Output data from lexer
-                    string sListStr = "";
-                    for (int i = 0; i < oList.Length; i++)
-                    {
-                        sListStr += oList[i] + " , ";
-                    }
-                    Trace.WriteLine(sListStr);
-                    sListBox.Text = sListStr;
-                    e.Handled = true;
-
                 }
-                catch (Exception ex)
-                {
-                    errorBox.Text = ex.Message;
-                }
+            }
+
+            else
+            {
+
             }
         }
     }
