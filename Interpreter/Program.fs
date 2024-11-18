@@ -113,8 +113,17 @@ module Interpreter =
         | Comma :: tail -> getParams tail parameters
         | Rpar :: Equ :: tail -> (tail,parameters)
         |_-> failwith "Parser error: Invalid token in parameters"
-       
 
+
+    let rec setVarEqualToParam (tList:terminal list) (parameters:num list) (varTable:Dictionary<string,num>) = 
+            match tList with
+            | [] -> (0)
+            | Var name :: tail when name |> Seq.forall Char.IsDigit->if(int name > parameters.Length) then
+                                                                        raise (System.Exception("Invalid number of parameters"))
+                                                                      else varTable[name] <- parameters[int name]
+                                                                           setVarEqualToParam tail parameters varTable
+            | c :: tail-> setVarEqualToParam tail parameters varTable
+           
     // BNF:
     //<E>        ::= <T> <Eopt> | "Var" <variable> "=" <E> | "Func" <name> "(" <variable> ")" "="  <E>
     //<Eopt>     ::= "+" <T> <Eopt> | "-" <T> <Eopt> | <empty>
@@ -143,7 +152,7 @@ module Interpreter =
 
             | Def :: Var name :: Lpar :: tail ->let (tail,parameters) = getParams tail []
                                                 funcTable.[name] <- (fun (listToModify:terminal list) (replacements:terminal list)  ->
-                                                                     listToModify |> List.map (fun item -> if List.contains item replacements then Var ("param" + string (List.findIndex ((=) item) replacements)) else item)) tail parameters
+                                                                     listToModify |> List.map (fun item -> if List.contains item replacements then Var (string (List.findIndex ((=) item) replacements)) else item)) tail parameters
                                                 ([], toNum 1.0)
 
             | _ -> (T >> Eopt) tList
@@ -189,19 +198,13 @@ module Interpreter =
                                          | _ -> raise (System.Exception("Parser error: Incorrect use of built-in function"))
 
 
-
-
-
             | Var name :: Lpar :: tail -> let (args, tail) = parseArguments tail []
                                           try
-                                          let (etail,result) = E ((fun (listToModify:terminal list) (args:terminal list)  ->
-                                                                     listToModify |> List.map (fun item -> if List.contains item args then Num 1 else item)) tail args)
+                                          let a = setVarEqualToParam funcTable.[name] args varTable
+                                          let (etail,result) = E funcTable.[name]
                                           (tail, result)
                                           with 
                                           | :? System.Collections.Generic.KeyNotFoundException -> raise (System.Exception("Parser error: Function not declared"))     
-
-
-
 
 
             | Num value :: Dot :: Num value2 :: tail -> (tail, FLOAT((float)((string) value + "." + (string)value2)))
@@ -231,8 +234,9 @@ module Interpreter =
         //Used to find the pararmeter and so is not part of the BNF
         and parseArguments tList arguments =
            match tList with
-           | Rpar :: tail -> (arguments, tail)
-           | Num value :: tail -> parseArguments tail (List.append arguments [Num value])
+           | Rpar :: tail -> (arguments,tail)
+           | Num value :: tail -> parseArguments tail (List.append arguments [INT(value)])
+           | Var name :: tail -> parseArguments tail (List.append arguments [varTable[name]])
            | Comma :: tail -> parseArguments tail arguments
            | _ -> raise (System.Exception("Parser error: Invalid argument list"))
         E tList
