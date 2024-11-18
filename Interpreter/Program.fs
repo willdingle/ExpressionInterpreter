@@ -236,10 +236,6 @@ module Interpreter =
         and parseArguments tList arguments =
            match tList with
            | Rpar :: tail -> (arguments,tail)
-           | Num value :: tail -> parseArguments tail (List.append arguments [INT(value)])
-           | Var name :: tail -> try parseArguments tail (List.append arguments [varTable[name]])
-                                 with
-                                    | :? System.Collections.Generic.KeyNotFoundException -> raise (System.Exception($"Parser error: Variable '{name}' not declared"))
            | Comma :: tail -> parseArguments tail arguments
            | c :: tail ->let(tail, result) = NR (c::tail)
                          parseArguments tail (List.append arguments [result])
