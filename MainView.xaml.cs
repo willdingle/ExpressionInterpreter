@@ -55,7 +55,6 @@ namespace ExpressionInterpreter
                 //Process each line of code
                 foreach (var codeLine in codeLines)
                 {
-                    Trace.WriteLine(codeLine);
                     if (string.IsNullOrWhiteSpace(codeLine))
                         continue;
 
@@ -66,15 +65,23 @@ namespace ExpressionInterpreter
                         try
                         {
                             var Out = Interpreter.parseNeval(oList, varTable, funcTable);
-                            //foreach (var func in funcTable)
-                            //{
-                            //    Trace.WriteLine(func);
-                            //}
+                            /*
+                            foreach (var func in funcTable)
+                            {
+                                Trace.WriteLine(func);
+                            }
+                            */
 
                             // Plot the function inputted
                             if (oList.Contains(Interpreter.terminal.Plot))
                             {
-                                outputBox.Text += "plot graph " + funcTable["" + oList[3]] + "\n";
+                                Trace.WriteLine("" + oList[1]);
+                                var funcName = "" + oList[1];
+                                funcName = funcName.Replace("Var ", "");
+                                funcName = funcName.Replace("\"", "");
+
+                                plotView.PlotFunc(funcName, funcTable[funcName]);
+                                outputBox.Text += "plot graph\n";
                             }
                             //else if (oList.Contains(Interpreter.terminal.Func))
                             //{
@@ -107,11 +114,6 @@ namespace ExpressionInterpreter
                         errorBox.Text += "\n" + ex.Message;
                     }
                 }
-            }
-
-            else
-            {
-
             }
         }
     }

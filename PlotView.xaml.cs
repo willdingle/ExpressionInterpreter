@@ -4,6 +4,10 @@ using System.Windows;
 using OxyPlot;
 using OxyPlot.Axes;
 using OxyPlot.Series;
+using Microsoft.FSharp.Collections;
+using FsharpLib;
+using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 namespace ExpressionInterpreter
 {
@@ -15,7 +19,7 @@ namespace ExpressionInterpreter
         {
             InitializeComponent();
 
-            Model = new PlotModel { Title = "Hello, team" };
+            Model = new PlotModel { Title = "Plot View" };
 
             var xAxis = new LinearAxis
             {
@@ -44,16 +48,20 @@ namespace ExpressionInterpreter
             Model.Axes.Add(xAxis);
             Model.Axes.Add(yAxis);
 
-            // Adding series
-            Model.Series.Add(new LineSeries
-            {
-                Title = "Arthur's Series",
-                Points = { new DataPoint(0, 0), new DataPoint(10, 18), new DataPoint(20, 12) }
-            });
-
-            Model.Series.Add(new FunctionSeries(Math.Cos, 0, 10, 0.1, "cos(x)"));
-
             DataContext = this;
+        }
+
+        public void PlotFunc(string funcName, FSharpList<FsharpLib.Interpreter.terminal> func)
+        {
+            string theNum = func[0].ToString();
+
+            theNum = Regex.Replace(theNum, "[^0-9]", "");
+
+            // x^1
+            Func<double, double> newFunc = (x) => Int32.Parse(theNum) * x;
+            Model.Series.Add(new FunctionSeries(newFunc, 0, 10, 0.1, funcName + "(x)"));
+
+            Model.InvalidatePlot(true);
         }
     }
 }
