@@ -194,10 +194,11 @@ module Interpreter =
 
             | Var name :: Lpar :: tail -> let (args, tail) = parseArguments tail []
                                           try
-                                            let (etail,result) = E funcTable.[name]
-                                            (tail, result)
+                                          let (etail,result) = E ((fun (listToModify:terminal list) (args:terminal list)  ->
+                                                                     listToModify |> List.map (fun item -> if List.contains item args then Num 1 else item)) tail args)
+                                          (tail, result)
                                           with 
-                                            | :? System.Collections.Generic.KeyNotFoundException -> raise (System.Exception("Parser error: Function not declared"))     
+                                          | :? System.Collections.Generic.KeyNotFoundException -> raise (System.Exception("Parser error: Function not declared"))     
 
 
 
@@ -231,7 +232,8 @@ module Interpreter =
         and parseArguments tList arguments =
            match tList with
            | Rpar :: tail -> (arguments, tail)
-           | Num value :: tail -> parseArguments tail arguments
+           | Num value :: tail -> parseArguments tail (List.append arguments [Num value])
+           | Comma :: tail -> parseArguments tail arguments
            | _ -> raise (System.Exception("Parser error: Invalid argument list"))
         E tList
 
