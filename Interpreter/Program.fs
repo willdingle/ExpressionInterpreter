@@ -118,21 +118,21 @@ module Interpreter =
     let rec setVarEqualToParam (tList:terminal list) (parameters:num list) (varTable:Dictionary<string,num>) = 
             match tList with
             | [] -> (0)
-            | Var name :: tail when name |> Seq.forall Char.IsDigit->if(int name > parameters.Length) then
+            | Var name :: tail when isdigit name[0]->if(int name > parameters.Length) then
                                                                         raise (System.Exception("Invalid number of parameters"))
                                                                       else varTable[name] <- parameters[int name]
                                                                            setVarEqualToParam tail parameters varTable
             | c :: tail-> setVarEqualToParam tail parameters varTable
            
     // BNF:
-    //<E>        ::= <T> <Eopt> | "Var" <variable> "=" <E> | "Func" <name> "(" <variable> ")" "="  <E>
+    //<E>        ::= <T> <Eopt> | "Var" <variable> "=" <E> | "Var" <name> "(" <parameters> ")" "="  <E>
     //<Eopt>     ::= "+" <T> <Eopt> | "-" <T> <Eopt> | <empty>
     //<T>        ::= <F> <Topt>
     //<Topt>     ::= "*" <F> <Topt> | "/" <F> <Topt> | "%" <F> <Topt> | <empty>
     //<F>        ::= <U> <Fopt>
     //<Fopt>     ::= "^" <U> <Fopt> | <empty>
-    //<U>        ::= "-" <NR> | <NR> | "Func" "(x)"
-    //<NR>       ::= "Num" <value> <NReopt> | "(" <E> ")" | "Var" <variable> | "OP" "(" <E> ")"
+    //<U>        ::= "-" <NR> | <NR>
+    //<NR>       ::= "Num" <value> <NReopt> | "(" <E> ")" | "Var" <variable> | "OP" "(" <E> ")" | "Var" <name> "(" <arguments> ")"
     //<NReopt>   ::= "e" <Eexp> | <empty>
     //<Eexp>     ::= "-" <value> | <value> | "(" <E> ")"
 
@@ -235,9 +235,12 @@ module Interpreter =
         and parseArguments tList arguments =
            match tList with
            | Rpar :: tail -> (arguments,tail)
-           | Num value :: tail -> parseArguments tail (List.append arguments [INT(value)])
-           | Var name :: tail -> parseArguments tail (List.append arguments [varTable[name]])
            | Comma :: tail -> parseArguments tail arguments
+           | c :: tail ->let(tail, result) = NR (c::tail)
+                         parseArguments tail (List.append arguments [result])
+           //| Num value :: Dot :: Num value2 :: tail -> parseArguments tail (List.append arguments [FLOAT((float)((string) value + "." + (string)value2))])
+           //| Num value :: tail -> parseArguments tail (List.append arguments [INT(value)])
+           //| Var name :: tail -> parseArguments tail (List.append arguments [varTable[name]])
            | _ -> raise (System.Exception("Parser error: Invalid argument list"))
         E tList
 
