@@ -1,5 +1,6 @@
 ﻿using ExpressionInterpreter.HelpPages;
 using FsharpLib;
+using Microsoft.FSharp.Collections;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -27,7 +28,7 @@ namespace ExpressionInterpreter
     {
 
         private readonly Dictionary<string, FsharpLib.Interpreter.num> varTable = [];
-        private readonly Dictionary<string, string> funcTable = [];
+        private readonly Dictionary<string, FSharpList<FsharpLib.Interpreter.terminal>> funcTable = [];
         PlotView plotView;
 
         public MainView()
@@ -66,10 +67,10 @@ namespace ExpressionInterpreter
                             Trace.WriteLine("plot graph " + funcTable["" + oList[3]]);
                             outputBox.Text = "plot graph " + funcTable["" + oList[3]];
                         }
-                        else if (oList.Contains(Interpreter.terminal.Func))
-                        {
-                            outputBox.Text = funcTable["" + oList[2]];
-                        }
+                        //else if (oList.Contains(Interpreter.terminal.Func))
+                        //{
+                         //   outputBox.Text = funcTable["" + oList[2]];
+                        //}
                         else
                         {
                             outputBox.Text = Out.Item2.ToString();

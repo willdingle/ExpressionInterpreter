@@ -12,7 +12,7 @@ module Interpreter =
     //Use this later for the variables
     
     type terminal = 
-        Add | Sub | Mul | Div | Lpar | Rpar | Mod | Pow | Var of String | Equ | Dot | Num of int | E | OP of string | Func | Plot
+        Add | Sub | Mul | Div | Lpar | Rpar | Mod | Pow | Var of String | Equ | Dot | Num of int | E | OP of string | Def | Plot | Comma
 
     let str2lst s = [for c in s -> c]
     let isblank c = System.Char.IsWhiteSpace c
@@ -45,6 +45,8 @@ module Interpreter =
             | ')'::tail -> Rpar:: scan tail
             | '='::tail -> Equ :: scan tail
             | '.'::tail -> Dot :: scan tail
+            | ','::tail -> Comma :: scan tail
+            | 'd' :: 'e' :: 'f' :: tail -> Def :: scan tail
             | c :: tail when isblank c -> scan tail
             | c :: tail when isdigit c -> let (iStr, iVal) = scInt(tail, intVal c)
                                           if(iStr.Length > 0 && iStr.Head = 'E') then Num iVal :: E :: scan iStr.Tail else Num iVal :: scan iStr
@@ -55,25 +57,11 @@ module Interpreter =
                                                    | "tan" -> OP "tan" :: scan iStr
                                                    | "sin" -> OP "sin" :: scan iStr
                                                    | "log" -> OP "log" :: scan iStr
-                                                   | "f" -> Func :: scan iStr
-                                                   | "plot" -> Plot :: scan iStr
+                                                   //| "plot" -> Plot :: scan iStr
                                                    | _ -> Var cVal :: scan iStr
                                            checkinput cVal
             | _ -> raise (System.Exception("Lexer error: Invalid character"))
         scan (str2lst input)
-
-        // f(x) = 
-   // BNF:
-    //<E>        ::= <T> <Eopt> | "Var" <variable> "=" <E> | "Func" "(x)" "="  <E>
-    //<Eopt>     ::= "+" <T> <Eopt> | "-" <T> <Eopt> | <empty>
-    //<T>        ::= <F> <Topt>
-    //<Topt>     ::= "*" <F> <Topt> | "/" <F> <Topt> | "%" <F> <Topt> | <empty>
-    //<F>        ::= <U> <Fopt>
-    //<Fopt>     ::= "^" <U> <Fopt> | <empty>
-    //<U>        ::= "-" <NR> | <NR> 
-    //<NR>       ::= "Num" <value> <NReopt> | "(" <E> ")" | "Var" <variable> | "OP" "(" <E> ")"
-    //<NReopt>   ::= "e" <Eexp> | <empty>
-    //<Eexp>     ::= "-" <value> | <value> | "(" <E> ")"
 
     // a: real part
     // b: imaginary part
@@ -119,16 +107,45 @@ module Interpreter =
             | :? float as f -> FLOAT f 
             | _ -> failwith "Unsupported type"
 
+    let rec getParams (tList:terminal list) (parameters:terminal list) =
+        match tList with
+        | Var name :: tail -> getParams tail (List.append parameters [Var name])
+        | Comma :: tail -> getParams tail parameters
+        | Rpar :: Equ :: tail -> (tail,parameters)
+        |_-> failwith "Parser error: Invalid token in parameters"
+       
+
+    // BNF:
+    //<E>        ::= <T> <Eopt> | "Var" <variable> "=" <E> | "Func" <name> "(" <variable> ")" "="  <E>
+    //<Eopt>     ::= "+" <T> <Eopt> | "-" <T> <Eopt> | <empty>
+    //<T>        ::= <F> <Topt>
+    //<Topt>     ::= "*" <F> <Topt> | "/" <F> <Topt> | "%" <F> <Topt> | <empty>
+    //<F>        ::= <U> <Fopt>
+    //<Fopt>     ::= "^" <U> <Fopt> | <empty>
+    //<U>        ::= "-" <NR> | <NR> | "Func" "(x)"
+    //<NR>       ::= "Num" <value> <NReopt> | "(" <E> ")" | "Var" <variable> | "OP" "(" <E> ")"
+    //<NReopt>   ::= "e" <Eexp> | <empty>
+    //<Eexp>     ::= "-" <value> | <value> | "(" <E> ")"
+
+
     //Check with evaluation
-    let parseNeval (tList,varTable:Dictionary<string,num>,funcTable:Dictionary<string,string>) = 
+    let parseNeval (tList,varTable:Dictionary<string,num>,funcTable:Dictionary<string,terminal list>) = 
         let rec E tList = 
             match tList with
             | Var name :: Equ :: tail -> let (tList, value) = E tail
                                          varTable.[name] <- value
                                          (tList, value)
-            | Func :: Lpar :: name :: Rpar :: Equ :: tail -> let (tList,value) = E tail
-                                                             funcTable.[string name] <- string tail
-                                                             (tList, value)
+
+            //| Def :: Var name :: Lpar :: params :: Rpar :: Equ :: tail ->funcTable.[name] <- tail
+             //                                                            let a = params
+              //                                                           ([], toNum 1.0)
+
+
+            | Def :: Var name :: Lpar :: tail ->let (tail,parameters) = getParams tail []
+                                                funcTable.[name] <- (fun (listToModify:terminal list) (replacements:terminal list)  ->
+                                                                     listToModify |> List.map (fun item -> if List.contains item replacements then Var ("param" + string (List.findIndex ((=) item) replacements)) else item)) tail parameters
+                                                ([], toNum 1.0)
+
             | _ -> (T >> Eopt) tList
         and Eopt (tList, value) = 
             match tList with
@@ -156,7 +173,7 @@ module Interpreter =
         and U tList = 
             match tList with
             | Sub :: tail ->
-                let (tLst,tVal:num) = NR tail 
+                let (tLst,tVal:num) = NR tail
                 (tLst,INT(0) - tVal)
             | _-> NR tList
         and NR tList =
@@ -170,30 +187,34 @@ module Interpreter =
                                                                                       | "sin" -> FLOAT(Math.Sin(tval.GetValue))
                                                                                       ) name)
                                          | _ -> raise (System.Exception("Parser error: Incorrect use of built-in function"))
-            | Plot :: Func :: Lpar :: name :: Rpar :: tail -> try 
-                                                                let temp = funcTable.[string name]
-                                                                (tail, toNum 0)
-                                                              with
-                                                                | :? System.Collections.Generic.KeyNotFoundException -> raise (System.Exception("Parser error: Function not declared"))
+
+
+
+
+
+            | Var name :: Lpar :: tail -> let (args, tail) = parseArguments tail []
+                                          try
+                                            let (etail,result) = E funcTable.[name]
+                                            (tail, result)
+                                          with 
+                                            | :? System.Collections.Generic.KeyNotFoundException -> raise (System.Exception("Parser error: Function not declared"))     
+
+
+
+
+
             | Num value :: Dot :: Num value2 :: tail -> (tail, FLOAT((float)((string) value + "." + (string)value2)))
             | Num value :: E :: exp -> let (tLst,eVal : num)  = Eexp exp
                                        (tLst, FLOAT((float)(value) * (10.0 ** (eVal.GetValue))))
-            | Sub :: Num value :: tail -> (tail, INT(-value))
             | Num value :: Equ :: tail -> raise (System.Exception("Parser error: Number used as a variable name"))
             | Num value :: tail -> (tail, INT(value))
             | Lpar :: tail -> let (tLst, tval) = E tail
                               match tLst with 
                               | Rpar :: tail -> (tail, tval)
                               | _ -> raise (System.Exception("Parser error: Open bracket was not closed"))
-            | Sub :: Var name:: tail -> (tail, INT(0) - varTable.[name])
             | Var name :: tail -> try (tail, varTable.[name])
                                   with
                                     | :? System.Collections.Generic.KeyNotFoundException -> raise (System.Exception("Parser error: Variable not declared"))
-            | Func :: Lpar :: name :: Rpar :: tail -> try
-                                                        let temp = funcTable.[string name]
-                                                        (tail, toNum 0)
-                                                      with
-                                                        | :? System.Collections.Generic.KeyNotFoundException -> raise (System.Exception("Parser error: Function not declared"))
             | _ -> raise (System.Exception("Parser error: Invalid expression"))
         and Eexp tList = 
             match tList with
@@ -204,6 +225,14 @@ module Interpreter =
                               | Rpar :: tail -> (tail, tval)
                               | _ -> raise (System.Exception("Parser error: Open bracket was not closed"))
             | _ -> raise (System.Exception("Parser error: Invalid expression"))
+
+
+        //Used to find the pararmeter and so is not part of the BNF
+        and parseArguments tList arguments =
+           match tList with
+           | Rpar :: tail -> (arguments, tail)
+           | Num value :: tail -> parseArguments tail arguments
+           | _ -> raise (System.Exception("Parser error: Invalid argument list"))
         E tList
 
     (*//Check without evaluation
