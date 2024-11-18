@@ -237,7 +237,7 @@ module Interpreter =
            match tList with
            | Rpar :: tail -> (arguments,tail)
            | Comma :: tail -> parseArguments tail arguments
-           | c :: tail ->let(tail, result) = NR (c::tail)
+           | c :: tail ->let(tail, result) = U (c::tail)
                          parseArguments tail (List.append arguments [result])
            //| Num value :: Dot :: Num value2 :: tail -> parseArguments tail (List.append arguments [FLOAT((float)((string) value + "." + (string)value2))])
            //| Num value :: tail -> parseArguments tail (List.append arguments [INT(value)])
