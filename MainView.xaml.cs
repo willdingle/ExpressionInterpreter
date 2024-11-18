@@ -55,6 +55,10 @@ namespace ExpressionInterpreter
                 //Process each line of code
                 foreach (var codeLine in codeLines)
                 {
+                    Trace.WriteLine(codeLine);
+                    if (string.IsNullOrWhiteSpace(codeLine))
+                        continue;
+
                     try
                     {
                         var oList = Interpreter.lexer(codeLine);
@@ -62,10 +66,10 @@ namespace ExpressionInterpreter
                         try
                         {
                             var Out = Interpreter.parseNeval(oList, varTable, funcTable);
-                            foreach (var func in funcTable)
-                            {
-                                Trace.WriteLine(func);
-                            }
+                            //foreach (var func in funcTable)
+                            //{
+                            //    Trace.WriteLine(func);
+                            //}
 
                             // Plot the function inputted
                             if (oList.Contains(Interpreter.terminal.Plot))
