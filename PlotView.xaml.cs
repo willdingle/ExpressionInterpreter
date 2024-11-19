@@ -51,16 +51,17 @@ namespace ExpressionInterpreter
 
             DataContext = this;
         }
-        public double getValue(int x,string funcName, Dictionary<string, FSharpList<FsharpLib.Interpreter.terminal>> funcTable)
+        public double getValue(double x,string funcName, Dictionary<string, FSharpList<FsharpLib.Interpreter.terminal>> funcTable)
         {
-            var oList = Interpreter.lexer(funcName+"(" +x+ ")");
+            var a = Math.Round(x,5);
+            var oList = Interpreter.lexer(funcName+"(" +a.ToString()+ ")");
             var result = Interpreter.parseNeval(oList, [], funcTable);
             return result.Item2.GetValue;
         }
         public FunctionSeries function(int bound1,int bound2,string funcName, Dictionary<string, FSharpList<FsharpLib.Interpreter.terminal>> funcTable)
         {
             FunctionSeries serie = new FunctionSeries();
-            for (int x = bound1; x < bound2; x++)
+            for (double x = bound1; x < bound2; x += 0.01)
             {
                 //adding the points based x,y
                 DataPoint data = new DataPoint(x, getValue(x, funcName, funcTable));
