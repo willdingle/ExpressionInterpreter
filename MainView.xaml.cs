@@ -48,6 +48,7 @@ namespace ExpressionInterpreter
                 outputBox.Text = "";
                 errorBox.Text = "";
                 sListBox.Text = "";
+                plotView.Model.Series.Clear();
 
                 // Split up lines of code
                 var codeLines = inputBox.Text.Split("\n");
@@ -80,7 +81,7 @@ namespace ExpressionInterpreter
                                 funcName = funcName.Replace("Var ", "");
                                 funcName = funcName.Replace("\"", "");
 
-                                plotView.PlotFunc(funcName, funcTable);
+                                plotView.PlotFunc(funcName, funcTable, varTable);
                                 outputBox.Text += "plot graph\n";
                             }
                             //else if (oList.Contains(Interpreter.terminal.Func))
