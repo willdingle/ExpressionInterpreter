@@ -80,7 +80,7 @@ namespace ExpressionInterpreter
                                 funcName = funcName.Replace("Var ", "");
                                 funcName = funcName.Replace("\"", "");
 
-                                plotView.PlotFunc(funcName, funcTable[funcName]);
+                                plotView.PlotFunc(funcName, funcTable);
                                 outputBox.Text += "plot graph\n";
                             }
                             //else if (oList.Contains(Interpreter.terminal.Func))

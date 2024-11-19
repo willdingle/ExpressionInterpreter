@@ -141,6 +141,11 @@ module Interpreter =
     let parseNeval (tList,varTable:Dictionary<string,num>,funcTable:Dictionary<string,terminal list>) = 
         let rec E tList = 
             match tList with
+            | Plot :: Var name :: tail -> try
+                                          (funcTable[name], toNum 1)
+                                          with 
+                                          | :? System.Collections.Generic.KeyNotFoundException -> raise (System.Exception($"Parser error: Function '{name}' not declared"))
+                                          
             | Var name :: Equ :: tail -> let (tList, value) = E tail
                                          varTable.[name] <- value
                                          (tList, value)
@@ -187,7 +192,6 @@ module Interpreter =
             | _-> NR tList
         and NR tList =
             match tList with 
-            | Plot :: tail -> (tList, toNum 1)
             | OP name :: Lpar :: tail -> let (tLst, tval) = E tail
                                          match tLst with 
                                          | Rpar :: tail -> (tail,(fun input -> match input with 

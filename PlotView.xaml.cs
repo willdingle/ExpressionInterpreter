@@ -8,6 +8,7 @@ using Microsoft.FSharp.Collections;
 using FsharpLib;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
+using ExpressionInterpreter.HelpPages;
 
 namespace ExpressionInterpreter
 {
@@ -50,17 +51,33 @@ namespace ExpressionInterpreter
 
             DataContext = this;
         }
-
-        public void PlotFunc(string funcName, FSharpList<FsharpLib.Interpreter.terminal> func)
+        public double getValue(int x,string funcName, Dictionary<string, FSharpList<FsharpLib.Interpreter.terminal>> funcTable)
         {
-            string theNum = func[0].ToString();
+            var oList = Interpreter.lexer(funcName+"(" +x+ ")");
+            var result = Interpreter.parseNeval(oList, [], funcTable);
+            return result.Item2.GetValue;
+        }
+        public FunctionSeries function(int bound1,int bound2,string funcName, Dictionary<string, FSharpList<FsharpLib.Interpreter.terminal>> funcTable)
+        {
+            FunctionSeries serie = new FunctionSeries();
+            for (int x = bound1; x < bound2; x++)
+            {
+                //adding the points based x,y
+                DataPoint data = new DataPoint(x, getValue(x, funcName, funcTable));
 
-            theNum = Regex.Replace(theNum, "[^0-9]", "");
+                //adding the point to the serie
+                serie.Points.Add(data);
+                
+            }
+            serie.Title = funcName + "(x)";
+            //returning the serie
+            return serie;
+        }
 
-            // x^1
-            Func<double, double> newFunc = (x) => Int32.Parse(theNum) * x;
-            Model.Series.Add(new FunctionSeries(newFunc, 0, 10, 0.1, funcName + "(x)"));
-
+        public void PlotFunc(string funcName, Dictionary<string, FSharpList<FsharpLib.Interpreter.terminal>> funcTable)
+        {
+            // -10 to 10 range here but we can specify that later
+            Model.Series.Add(function(-10,10,funcName, funcTable));
             Model.InvalidatePlot(true);
         }
     }
