@@ -97,6 +97,7 @@ namespace ExpressionInterpreter
                         catch (Exception ex)
                         {
                             errorBox.Text += ex.Message + "\n";
+                            plotView.Model.InvalidatePlot(true);
                         }
 
                         // Output data from lexer

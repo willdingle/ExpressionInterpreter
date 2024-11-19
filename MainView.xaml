@@ -21,27 +21,27 @@
             </Grid.RowDefinitions>
 
             <StackPanel Grid.Column ="0" Grid.Row="0">
-                <Label FontSize="20">Input:</Label>
-                <TextBox x:Name="inputBox" AcceptsReturn="True" FontSize="14" Text="" KeyUp="InputBoxKeyUp"/>
+                <Label Margin="15" FontSize="20">Input:</Label>
+                <TextBox Margin="15" x:Name="inputBox" AcceptsReturn="True" FontSize="14" Text="" KeyUp="InputBoxKeyUp" Height="80" VerticalScrollBarVisibility="auto"/>
             </StackPanel>
 
             <StackPanel Grid.Column ="0" Grid.Row="1">
-                <Label FontSize="20">Output:</Label>
-                <TextBox IsReadOnly="True" x:Name="outputBox" FontSize="14" Text=""/>
+                <Label Margin="15" FontSize="20">Output:</Label>
+                <TextBox Margin="15" IsReadOnly="True" x:Name="outputBox" FontSize="14" Text="" Height="80" VerticalScrollBarVisibility="Auto"/>
             </StackPanel>
 
             <StackPanel Grid.Column ="0" Grid.Row="2">
-                <Label FontSize="20">Errors:</Label>
-                <TextBox Foreground="Red" IsReadOnly="True" x:Name="errorBox" FontSize="14" Text=""/>
+                <Label Margin="15" FontSize="20">Errors:</Label>
+                <TextBox Foreground="Red" Margin="15" BorderBrush="Red" BorderThickness="2"  IsReadOnly="True" x:Name="errorBox" FontSize="14" Text="" VerticalScrollBarVisibility="Auto"/>
             </StackPanel>
 
             <StackPanel Grid.Column ="0" Grid.Row="3">
-                <Label FontSize="20">Tokens:</Label>
-                <TextBox IsReadOnly="True" x:Name="sListBox" FontSize="14" Text=""/>
+                <Label Margin="15" FontSize="20">Tokens:</Label>
+                <TextBox Margin="15" IsReadOnly="True" x:Name="sListBox" FontSize="14" Text=""/>
             </StackPanel>
         </Grid>
 
-        <ContentControl Grid.Column="1" Name="PlotContent" />
+        <ContentControl Grid.Column="1" Name="PlotContent"/>
 
     </Grid>
 </UserControl>
