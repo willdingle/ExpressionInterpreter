@@ -12,7 +12,7 @@ module Interpreter =
     //Use this later for the variables
     
     type terminal = 
-        Add | Sub | Mul | Div | Lpar | Rpar | Mod | Pow | Var of String | Equ | Dot | Num of int | E | OP of string | Def | Plot | Comma
+        Add | Sub | Mul | Div | Lpar | Rpar | Mod | Pow | Var of String | Equ | Num of string | E | OP of string | Def | Plot | Comma
 
     let str2lst s = [for c in s -> c]
     let isblank c = System.Char.IsWhiteSpace c
@@ -20,16 +20,21 @@ module Interpreter =
     let isLetter c = System.Char.IsLetter c
     let intVal (c:char) = (int)((int)c - (int)'0')
 
-    let rec scInt(iStr, iVal) = 
+    let rec scNum(iStr, iVal:string) = 
         match iStr with
-        | c :: tail when isdigit c -> scInt(tail, 10*iVal+(intVal c))
+        | c :: tail when isdigit c -> scNum(tail, iVal + string c)
+        | '.' :: tail->let (remainingInput,fraction) = scFraction tail ""
+                       (remainingInput,iVal + "." + fraction)
         | _ -> (iStr, iVal)
+    and scFraction lst acc = 
+        match lst with 
+        | c :: tail when isdigit c -> scFraction tail (acc + string c)
+        | _ -> (lst, acc)
 
     let rec scString(iStr, cVal : String) = 
         match iStr with
         c :: tail when isLetter c || isdigit c -> scString(tail, cVal + string c)
         | _ -> (iStr, cVal)
-
 
     let lexer input = 
         let rec scan input =
@@ -44,12 +49,12 @@ module Interpreter =
             | '('::tail -> Lpar:: scan tail
             | ')'::tail -> Rpar:: scan tail
             | '='::tail -> Equ :: scan tail
-            | '.'::tail -> Dot :: scan tail
             | ','::tail -> Comma :: scan tail
             | 'd' :: 'e' :: 'f' :: tail -> Def :: scan tail
             | c :: tail when isblank c -> scan tail
-            | c :: tail when isdigit c -> let (iStr, iVal) = scInt(tail, intVal c)
-                                          if(iStr.Length > 0 && iStr.Head = 'E') then Num iVal :: E :: scan iStr.Tail else Num iVal :: scan iStr
+            | c :: tail when isdigit c -> let (iStr, iVal) = scNum(tail, string c)
+                                          if(iStr.Length > 0 && iStr.Head = 'E') then Num  iVal :: E :: scan iStr.Tail else Num iVal :: scan iStr
+
             | c :: tail when isLetter c -> let (iStr, cVal) = scString(tail, string c)
                                            let checkinput input = 
                                                match input with
@@ -211,12 +216,12 @@ module Interpreter =
                                           with 
                                           | :? System.Collections.Generic.KeyNotFoundException -> raise (System.Exception($"Parser error: Function '{name}' not declared"))     
 
-
-            | Num value :: Dot :: Num value2 :: tail -> (tail, FLOAT((float)((string) value + "." + (string)value2)))
             | Num value :: E :: exp -> let (tLst,eVal : num)  = Eexp exp
                                        (tLst, FLOAT((float)(value) * (10.0 ** (eVal.GetValue))))
+
             | Num value :: Equ :: tail -> raise (System.Exception("Parser error: Number used as a variable name"))
-            | Num value :: tail -> (tail, INT(value))
+
+            | Num value :: tail -> (tail, (if(value.Contains("."))then FLOAT(float value) else INT(int value)))
             | Lpar :: tail -> let (tLst, tval) = E tail
                               match tLst with 
                               | Rpar :: tail -> (tail, tval)
@@ -227,8 +232,8 @@ module Interpreter =
             | _ -> raise (System.Exception("Parser error: Invalid expression"))
         and Eexp tList = 
             match tList with
-            | Sub :: Num value :: tail -> (tail,INT(-value))
-            | Num value :: tail -> (tail,INT(value))
+            | Sub :: Num value :: tail -> (tail,INT(-(int value)))
+            | Num value :: tail -> (tail,INT(int value))
             | Lpar :: tail -> let (tLst, tval) = E tail
                               match tLst with 
                               | Rpar :: tail -> (tail, tval)
