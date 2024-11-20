@@ -51,6 +51,7 @@ namespace ExpressionInterpreter
 
             DataContext = this;
         }
+
         public double getValue(double x, string funcName, Dictionary<string, FSharpList<FsharpLib.Interpreter.terminal>> funcTable, Dictionary<string, FsharpLib.Interpreter.num> vartable)
         {
             var a = Math.Round(x,5);
@@ -58,7 +59,8 @@ namespace ExpressionInterpreter
             var result = Interpreter.parseNeval(oList, vartable, funcTable);
             return result.Item2.GetValue;
         }
-        public FunctionSeries function(int bound1,int bound2,string funcName, Dictionary<string, FSharpList<FsharpLib.Interpreter.terminal>> funcTable, Dictionary<string, FsharpLib.Interpreter.num> vartable)
+
+        public FunctionSeries function(int bound1, int bound2, string funcName, Dictionary<string, FSharpList<FsharpLib.Interpreter.terminal>> funcTable, Dictionary<string, FsharpLib.Interpreter.num> vartable)
         {
             FunctionSeries serie = new FunctionSeries();
             for (double x = bound1; x < bound2; x += 0.01)

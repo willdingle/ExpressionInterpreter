@@ -16,28 +16,28 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
                 <RowDefinition Height="*" />
-                <RowDefinition Height="*" />
-                <RowDefinition Height="*" />
+                <RowDefinition Height="100" />
+                <RowDefinition Height="100" />
             </Grid.RowDefinitions>
 
             <StackPanel Grid.Column ="0" Grid.Row="0">
-                <Label Margin="15" FontSize="20">Input:</Label>
-                <TextBox Margin="15" x:Name="inputBox" AcceptsReturn="True" FontSize="14" Text="" KeyUp="InputBoxKeyUp" Height="80" VerticalScrollBarVisibility="auto"/>
+                <Label Margin="0,0,15,0" FontSize="20">Input:</Label>
+                <TextBox Margin="0,0,15,0" x:Name="inputBox" AcceptsReturn="True" FontSize="14" Text="" KeyUp="InputBoxKeyUp" Height="150" VerticalScrollBarVisibility="Auto"/>
             </StackPanel>
 
             <StackPanel Grid.Column ="0" Grid.Row="1">
-                <Label Margin="15" FontSize="20">Output:</Label>
-                <TextBox Margin="15" IsReadOnly="True" x:Name="outputBox" FontSize="14" Text="" Height="80" VerticalScrollBarVisibility="Auto"/>
+                <Label Margin="0,0,15,0" FontSize="20">Output:</Label>
+                <TextBox Margin="0,0,15,0" IsReadOnly="True" x:Name="outputBox" FontSize="14" Text="" Height="150" VerticalScrollBarVisibility="Auto"/>
             </StackPanel>
 
             <StackPanel Grid.Column ="0" Grid.Row="2">
-                <Label Margin="15" FontSize="20">Errors:</Label>
-                <TextBox Foreground="Red" Margin="15" BorderBrush="Red" BorderThickness="2"  IsReadOnly="True" x:Name="errorBox" FontSize="14" Text="" VerticalScrollBarVisibility="Auto"/>
+                <Label Margin="0,0,15,0" FontSize="20">Errors:</Label>
+                <TextBox Margin="0,0,15,0" Height="50" Foreground="Red" BorderBrush="Red" BorderThickness="2" IsReadOnly="True" x:Name="errorBox" FontSize="14" Text="" VerticalScrollBarVisibility="Auto"/>
             </StackPanel>
 
             <StackPanel Grid.Column ="0" Grid.Row="3">
-                <Label Margin="15" FontSize="20">Tokens:</Label>
-                <TextBox Margin="15" IsReadOnly="True" x:Name="sListBox" FontSize="14" Text=""/>
+                <Label Margin="0,0,15,0" FontSize="20">Tokens:</Label>
+                <TextBox Margin="0,0,15,0" Height="50" IsReadOnly="True" x:Name="sListBox" FontSize="14" Text=""/>
             </StackPanel>
         </Grid>
 
