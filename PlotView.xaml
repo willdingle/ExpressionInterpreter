@@ -6,8 +6,9 @@
              xmlns:local="clr-namespace:ExpressionInterpreter"
              xmlns:oxy="http://oxyplot.org/wpf"
              mc:Ignorable="d" 
-             d:DesignHeight="720" d:DesignWidth="1280">
+             d:DesignHeight="720" d:DesignWidth="1280"
+             MouseMove="ZoomPanChanged" >
     <Grid>
-        <oxy:PlotView Model="{Binding Model}" />
+        <oxy:PlotView Model="{Binding Model}"/>
     </Grid>
 </UserControl>

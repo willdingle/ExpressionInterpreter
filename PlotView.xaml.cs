@@ -15,6 +15,8 @@ namespace ExpressionInterpreter
     public partial class PlotView : UserControl
     {
         public PlotModel Model { get; set; }
+        private Dictionary<string, FsharpLib.Interpreter.num> varTable = [];
+        private Dictionary<string, FSharpList<FsharpLib.Interpreter.terminal>> funcTable = [];
 
         public PlotView()
         {
@@ -52,6 +54,41 @@ namespace ExpressionInterpreter
             DataContext = this;
         }
 
+        private void ZoomPanChanged(object sender, System.Windows.Input.MouseEventArgs e)
+        {
+            Trace.WriteLine("Zoom pan changed");
+
+            var newMin = Model.Axes[0].ActualMinimum;
+            var newMax = Model.Axes[0].ActualMaximum;
+
+            foreach (LineSeries line in Model.Series)
+            {
+                var oldMin = line.Points[0].X;
+                var oldMax = line.Points[line.Points.Count - 1].X;
+
+                for (double x = newMin; x < oldMin; x += 0.01)
+                {
+                    var lineName = line.Title[0];
+                    DataPoint data = new DataPoint(x, getValue(x, "" + lineName, funcTable, varTable));
+
+                    line.Points.Add(data);
+                }
+
+                for (double x = oldMax; x < newMax; x += 0.01)
+                {
+                    var lineName = line.Title[0];
+                    DataPoint data = new DataPoint(x, getValue(x, "" + lineName, funcTable, varTable));
+
+                    line.Points.Add(data);
+                }
+            }
+
+            Trace.WriteLine("new min: " + newMin);
+            Trace.WriteLine("new max: " + newMax);
+
+            Model.InvalidatePlot(true);
+        }
+
         public double getValue(double x, string funcName, Dictionary<string, FSharpList<FsharpLib.Interpreter.terminal>> funcTable, Dictionary<string, FsharpLib.Interpreter.num> vartable)
         {
             var a = Math.Round(x,5);
@@ -60,7 +97,7 @@ namespace ExpressionInterpreter
             return result.Item2.GetValue;
         }
 
-        public FunctionSeries function(int bound1, int bound2, string funcName, Dictionary<string, FSharpList<FsharpLib.Interpreter.terminal>> funcTable, Dictionary<string, FsharpLib.Interpreter.num> vartable)
+        public FunctionSeries Function(int bound1, int bound2, string funcName, Dictionary<string, FSharpList<FsharpLib.Interpreter.terminal>> funcTable, Dictionary<string, FsharpLib.Interpreter.num> vartable)
         {
             FunctionSeries serie = new FunctionSeries();
             for (double x = bound1; x < bound2; x += 0.01)
@@ -80,7 +117,19 @@ namespace ExpressionInterpreter
         public void PlotFunc(string funcName, Dictionary<string, FSharpList<FsharpLib.Interpreter.terminal>> funcTable, Dictionary<string, FsharpLib.Interpreter.num> vartable)
         {
             // -10 to 10 range here but we can specify that later
-            Model.Series.Add(function(-10,10,funcName, funcTable,vartable));
+            Model.Series.Add(Function(-10, 10, funcName, funcTable, vartable));
+
+
+            /*
+            foreach (var ax in Model.Axes)
+            {
+                ax.Maximum = ax.Minimum = Double.NaN;
+            }
+            */
+
+            this.varTable = vartable;
+            this.funcTable = funcTable;
+
             Model.InvalidatePlot(true);
         }
     }
