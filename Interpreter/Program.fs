@@ -17,6 +17,11 @@ module Interpreter =
         | E | OP of string // Operators like "cos", "tan", etc.
         | Def | Plot | Comma // Special keywords
 
+
+    // Look Up Table for terminal list
+    let lut = [("cos", OP "cos");("sin",OP "sin" );("tan", OP "tan");( "log",OP "log");("plot", Plot);("def",Def)] |> dict |> Dictionary
+
+
     // Helper function to convert a string to a list of characters
     let str2lst s = [for c in s -> c]
 
@@ -68,7 +73,6 @@ module Interpreter =
             | ')'::tail -> Rpar :: scan tail
             | '='::tail -> Equ :: scan tail
             | ','::tail -> Comma :: scan tail
-            | 'd' :: 'e' :: 'f' :: tail -> Def :: scan tail // "def" keyword
             | c :: tail when isblank c -> scan tail // Skip whitespace
             | c :: tail when isdigit c -> 
                 let (iStr, iVal) = scNum(tail, string c)
@@ -78,15 +82,7 @@ module Interpreter =
                     Num iVal :: scan iStr
             | c :: tail when isLetter c -> 
                 let (iStr, cVal) = scString(tail, string c)
-                let checkinput input = 
-                    match input with
-                    | "cos" -> OP "cos" :: scan iStr
-                    | "tan" -> OP "tan" :: scan iStr
-                    | "sin" -> OP "sin" :: scan iStr
-                    | "log" -> OP "log" :: scan iStr
-                    | "plot" -> Plot :: scan iStr
-                    | _ -> Var cVal :: scan iStr
-                checkinput cVal
+                if(lut.ContainsKey(cVal))then lut[cVal]::scan iStr else Var cVal :: scan iStr
             | _ -> raise (System.Exception("Lexer error: Invalid character"))
         scan (str2lst input)
 
@@ -317,3 +313,8 @@ module Interpreter =
                               | _ -> raise parseError
             | _ -> raise parseError
         E tList*)
+
+
+// This is to intialize the LUT.
+    [<EntryPoint>]
+        let main _ = 0
