@@ -91,8 +91,7 @@ namespace ExpressionInterpreter
 
         public double getValue(double x, string funcName, Dictionary<string, FSharpList<FsharpLib.Interpreter.terminal>> funcTable, Dictionary<string, FsharpLib.Interpreter.num> vartable)
         {
-            var a = Math.Round(x,5);
-            var oList = Interpreter.lexer(funcName+"(" +a.ToString()+ ")");
+            var oList = Interpreter.lexer(funcName+"(" + x.ToString() + ")");
             var result = Interpreter.parseNeval(oList, vartable, funcTable);
             return result.Item2.GetValue;
         }
