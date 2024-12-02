@@ -63,6 +63,7 @@ namespace ExpressionInterpreter
 
             foreach (LineSeries line in Model.Series)
             {
+                LineSeries lineSeries = new LineSeries();
                 var oldMin = line.Points[0].X;
                 var oldMax = line.Points[line.Points.Count - 1].X;
 
@@ -71,16 +72,19 @@ namespace ExpressionInterpreter
                     var lineName = line.Title[0];
                     DataPoint data = new DataPoint(x, getValue(x, "" + lineName, funcTable, varTable));
 
-                    line.Points.Add(data);
+                    lineSeries.Points.Add(data);
                 }
+                lineSeries.Points.AddRange(line.Points);
 
                 for (double x = oldMax; x < newMax; x += 0.01)
                 {
                     var lineName = line.Title[0];
                     DataPoint data = new DataPoint(x, getValue(x, "" + lineName, funcTable, varTable));
 
-                    line.Points.Add(data);
+                    lineSeries.Points.Add(data);
                 }
+                line.Points.Clear();
+                line.Points.AddRange(lineSeries.Points);
             }
 
             Trace.WriteLine("new min: " + newMin);
