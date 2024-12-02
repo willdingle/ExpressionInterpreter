@@ -72,10 +72,11 @@ namespace ExpressionInterpreter
 
             foreach (LineSeries line in Model.Series)
             {
-                LineSeries lineSeries = new LineSeries();
+                //LineSeries lineSeries = new LineSeries();
                 var oldMin = line.Points[0].X;
                 var oldMax = line.Points[line.Points.Count - 1].X;
 
+                /*
                 for (double x = newMin; x < oldMin; x += increment)
                 {
                     var lineName = line.Title[0];
@@ -92,8 +93,13 @@ namespace ExpressionInterpreter
 
                     lineSeries.Points.Add(data);
                 }
+                */
+                string lineName = "" + line.Title[0];
+
                 line.Points.Clear();
-                line.Points.AddRange(lineSeries.Points);
+                line.Points.AddRange(Function(newMin, newMax, increment, lineName, funcTable, varTable).Points);
+                //line.Points.AddRange(lineSeries.Points);
+                
             }
 
             Trace.WriteLine("new min: " + newMin);
@@ -109,10 +115,10 @@ namespace ExpressionInterpreter
             return result.Item2.GetValue;
         }
 
-        public FunctionSeries Function(int bound1, int bound2, string funcName, Dictionary<string, FSharpList<FsharpLib.Interpreter.terminal>> funcTable, Dictionary<string, FsharpLib.Interpreter.num> vartable)
+        public FunctionSeries Function(double bound1, double bound2, double increment, string funcName, Dictionary<string, FSharpList<FsharpLib.Interpreter.terminal>> funcTable, Dictionary<string, FsharpLib.Interpreter.num> vartable)
         {
             FunctionSeries serie = new FunctionSeries();
-            for (double x = bound1; x < bound2; x += 0.01)
+            for (double x = bound1; x < bound2; x += increment)
             {
                 //adding the points based off x
                 DataPoint data = new DataPoint(x, getValue(x, funcName, funcTable, vartable));
@@ -129,7 +135,7 @@ namespace ExpressionInterpreter
         public void PlotFunc(string funcName, Dictionary<string, FSharpList<FsharpLib.Interpreter.terminal>> funcTable, Dictionary<string, FsharpLib.Interpreter.num> vartable)
         {
             // -10 to 10 range here but we can specify that later
-            Model.Series.Add(Function(-10, 10, funcName, funcTable, vartable));
+            Model.Series.Add(Function(-10, 10, 0.01, funcName, funcTable, vartable));
 
 
             /*
