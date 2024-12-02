@@ -20,8 +20,35 @@ namespace ExpressionInterpreter.HelpPages
         public Plotting()
         {
             InitializeComponent();
-            PlottingHelp.Text = "Use 'plot [variable]' to plot a line / polynomial.\n" +
-                                "\t\t\tExample( when f(x) = x^2 ): plot f(x)          -->          INSERT PICTURE OF x^2 GRAPH";
+
+            string[] titles = ["Plot Graph", "Panning", "Zooming"];
+            string[] mainTexts =
+            [
+                "Use plot [function variable] to plot the corresponding function \n" +
+                       "\tExample (when f() is assigned): plot f()",
+                "Hold the right mouse button while dragging to pan over the plotting area",
+                "Use the scroll wheel on a mouse or pinch gesture on a trackpad to zoom over the plotting area"
+            ];
+            int rowIndex = 0;
+
+            for (int i = 0; i < titles.Length; i++)
+            {
+                TextBlock title = new TextBlock();
+                title.FontSize = 18;
+                title.FontWeight = FontWeights.Bold;
+                title.Text = titles[i];
+
+                TextBlock mainText = new TextBlock();
+                mainText.FontSize = 14;
+                mainText.Text = mainTexts[i];
+
+                PlottingGrid.RowDefinitions.Add(new RowDefinition());
+                PlottingGrid.RowDefinitions.Add(new RowDefinition());
+                Grid.SetRow(title, rowIndex++);
+                Grid.SetRow(mainText, rowIndex++);
+                PlottingGrid.Children.Add(title);
+                PlottingGrid.Children.Add(mainText);
+            }
         }
     }
 }

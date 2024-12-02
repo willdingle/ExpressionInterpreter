@@ -20,14 +20,39 @@ namespace ExpressionInterpreter.HelpPages
         public Variables()
         {
             InitializeComponent();
-            SingVarAssign.Text = "Single Variable Assignment: varName = x \n" +
-                                 "\t\t\tExample: foo = 9\n";
 
-            MultVarAssign.Text = "Multiple Variable Assignment: varOne = varTwo = x\n" +
-                       "\t\t\tExample: foo = bar = 9\n";
+            string[] titles = ["Single Variable Assignment", "Multiple Variable Assignment", "Variable Assignment in Expression", "Function Assignment"];
+            string[] mainTexts =
+            [
+                "varName = x \n" +
+                       "\tExample: foo = 9",
+                "varOne = varTwo = x\n" +
+                       "\tExample: foo = bar = 9",
+                "(varName = 2)\n" +
+                       "\tExample: 6E(x = 3)",
+                "Use any letter followed by () or (x) followed by = [function]\n" +
+                       "\tExample: f(x) = x^2 + 2*x + 3"
+            ];
+            int rowIndex = 0;
 
-            VarAssignInExpr.Text = "Variable Assignment in an Expression: (varName = 2)\n" +
-                         "\t\t\tExample: 6E(x = 3)\n";
+            for (int i = 0; i < titles.Length; i++)
+            {
+                TextBlock title = new TextBlock();
+                title.FontSize = 18;
+                title.FontWeight = FontWeights.Bold;
+                title.Text = titles[i];
+
+                TextBlock mainText = new TextBlock();
+                mainText.FontSize = 14;
+                mainText.Text = mainTexts[i];
+
+                VariablesGrid.RowDefinitions.Add(new RowDefinition());
+                VariablesGrid.RowDefinitions.Add(new RowDefinition());
+                Grid.SetRow(title, rowIndex++);
+                Grid.SetRow(mainText, rowIndex++);
+                VariablesGrid.Children.Add(title);
+                VariablesGrid.Children.Add(mainText);
+            }
         }
     }
 }

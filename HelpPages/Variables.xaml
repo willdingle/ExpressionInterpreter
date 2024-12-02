@@ -6,15 +6,8 @@
              xmlns:local="clr-namespace:ExpressionInterpreter.HelpPages"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid Margin="10">
+    <Grid Margin="10" Name="VariablesGrid">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-
-        <TextBlock Name="SingVarAssign" Grid.Row ="0" TextWrapping="Wrap" Text=""/>
-        <TextBlock Name="MultVarAssign" Grid.Row ="1" TextWrapping="Wrap" Text=""/>
-        <TextBlock Name="VarAssignInExpr" Grid.Row ="2" TextWrapping="Wrap" Text=""/>
     </Grid>
 </UserControl>

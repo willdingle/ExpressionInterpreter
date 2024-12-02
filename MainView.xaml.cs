@@ -47,7 +47,7 @@ namespace ExpressionInterpreter
                 // Clear output boxes
                 outputBox.Text = "";
                 errorBox.Text = "";
-                sListBox.Text = "";
+                //sListBox.Text = "";
                 plotView.Model.Series.Clear();
 
                 // Split up lines of code
@@ -107,7 +107,7 @@ namespace ExpressionInterpreter
                             sListStr += oList[i] + " , ";
                         }
                         Trace.WriteLine(sListStr);
-                        sListBox.Text = sListStr;
+                        //sListBox.Text = sListStr;
                         e.Handled = true;
 
                     }
