@@ -61,13 +61,22 @@ namespace ExpressionInterpreter
             var newMin = Model.Axes[0].ActualMinimum;
             var newMax = Model.Axes[0].ActualMaximum;
 
+            if (newMax > Int32.MaxValue)
+            {
+                Trace.WriteLine("Limiting to max value size");
+                newMax = Int32.MaxValue;
+                newMin = -Int32.MaxValue;
+            }
+
+            double increment = (newMax - newMin) / 100;
+
             foreach (LineSeries line in Model.Series)
             {
                 LineSeries lineSeries = new LineSeries();
                 var oldMin = line.Points[0].X;
                 var oldMax = line.Points[line.Points.Count - 1].X;
 
-                for (double x = newMin; x < oldMin; x += 0.01)
+                for (double x = newMin; x < oldMin; x += increment)
                 {
                     var lineName = line.Title[0];
                     DataPoint data = new DataPoint(x, getValue(x, "" + lineName, funcTable, varTable));
@@ -76,7 +85,7 @@ namespace ExpressionInterpreter
                 }
                 lineSeries.Points.AddRange(line.Points);
 
-                for (double x = oldMax; x < newMax; x += 0.01)
+                for (double x = oldMax; x < newMax; x += increment)
                 {
                     var lineName = line.Title[0];
                     DataPoint data = new DataPoint(x, getValue(x, "" + lineName, funcTable, varTable));
