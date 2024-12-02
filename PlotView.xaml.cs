@@ -9,6 +9,9 @@ using FsharpLib;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using ExpressionInterpreter.HelpPages;
+using System.Windows.Shapes;
+using System.Security.Cryptography;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ExpressionInterpreter
 {
@@ -54,6 +57,13 @@ namespace ExpressionInterpreter
             DataContext = this;
         }
 
+        private void RedrawLine(LineSeries line, double newMin, double newMax, double increment)
+        {
+            string lineName = "" + line.Title[0];
+
+            line.Points.AddRange(Function(newMin, newMax, increment, lineName, funcTable, varTable).Points);
+        }
+
         private void ZoomPanChanged(object sender, System.Windows.Input.MouseEventArgs e)
         {
             Trace.WriteLine("Zoom pan changed");
@@ -68,42 +78,27 @@ namespace ExpressionInterpreter
                 newMin = -Int32.MaxValue;
             }
 
-            double increment = (newMax - newMin) / 100;
+            double increment = (newMax - newMin) / 1000;
+            int numOfThreads = 4;
 
             foreach (LineSeries line in Model.Series)
             {
-                //LineSeries lineSeries = new LineSeries();
-                var oldMin = line.Points[0].X;
-                var oldMax = line.Points[line.Points.Count - 1].X;
-
-                /*
-                for (double x = newMin; x < oldMin; x += increment)
-                {
-                    var lineName = line.Title[0];
-                    DataPoint data = new DataPoint(x, getValue(x, "" + lineName, funcTable, varTable));
-
-                    lineSeries.Points.Add(data);
-                }
-                lineSeries.Points.AddRange(line.Points);
-
-                for (double x = oldMax; x < newMax; x += increment)
-                {
-                    var lineName = line.Title[0];
-                    DataPoint data = new DataPoint(x, getValue(x, "" + lineName, funcTable, varTable));
-
-                    lineSeries.Points.Add(data);
-                }
-                */
+                line.Points.Clear();
                 string lineName = "" + line.Title[0];
 
-                line.Points.Clear();
-                line.Points.AddRange(Function(newMin, newMax, increment, lineName, funcTable, varTable).Points);
-                //line.Points.AddRange(lineSeries.Points);
-                
-            }
+                /*
+                double threadIncrement = (newMax - newMin) / numOfThreads;
+                Thread[] threads = new Thread[numOfThreads];
 
-            Trace.WriteLine("new min: " + newMin);
-            Trace.WriteLine("new max: " + newMax);
+                for (int  i = 0; i < numOfThreads; i++)
+                {
+                    threads[i] = new Thread(() => line.Points.AddRange(Function(newMin + (i * threadIncrement), (newMin + (i + 1)) * threadIncrement, increment, lineName, funcTable, varTable).Points));
+                    threads[i].Start();
+                }
+                */
+                
+                line.Points.AddRange(Function(newMin, newMax, increment, lineName, funcTable, varTable).Points);
+            }
 
             Model.InvalidatePlot(true);
         }
