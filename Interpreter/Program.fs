@@ -13,6 +13,7 @@ module Interpreter =
     type terminal = 
         Add | Sub | Mul | Div | Lpar | Rpar | Mod | Pow 
         | Var of String // Represents variable names
+        | Func of String // Represents variable names
         | Equ | Num of string // Numeric literals
         | E | OP of string // Operators like "cos", "tan", etc.
         | Def | Plot | Comma // Special keywords
@@ -78,12 +79,12 @@ module Interpreter =
                 let (iStr, iVal) = scNum(tail, string c)
                 if (iStr.Length > 0 && iStr.Head = 'E') then 
                     Num iVal :: E :: scan iStr.Tail 
-                else 
+                else
                     Num iVal :: scan iStr
             | c :: tail when isLetter c -> 
                 let (iStr, cVal) = scString(tail, string c)
-                if(lut.ContainsKey(cVal))then lut[cVal]::scan iStr else Var cVal :: scan iStr
-            | _ -> raise (System.Exception($"Lexer error: Invalid character '{input.Head}'"))
+                if(lut.ContainsKey(cVal))then lut[cVal]::scan iStr else if(iStr.Length > 0 && iStr.Head = '(')then Func cVal :: scan iStr else Var cVal :: scan iStr
+            | _ -> raise (System.Exception("Lexer error: Invalid character"))
         scan (str2lst input)
 
     // Represents complex numbers (not fully used yet)
@@ -141,7 +142,7 @@ module Interpreter =
         | Var name :: tail -> getParams tail (List.append parameters [Var name])  // Add the variable name to the parameters list
         | Comma :: tail -> getParams tail parameters // Skip commas and continue
         | Rpar :: Equ :: tail -> (tail,parameters) // End of parameter list, return the remaining tokens and parameters
-        |_ -> failwith "Parser error: Invalid token in parameters" // Invalid token in the parameter list
+        |_-> failwith "Parser error: Invalid token in parameters" // Invalid token in the parameter list
 
 
     let rec setVarEqualToParam (tList:terminal list) (parameters:num list) (varTable:Dictionary<string,num>) = 
@@ -172,21 +173,21 @@ module Interpreter =
         let rec E tList = 
             match tList with
             // Handle plot command: retrieve the function definition from funcTable
-            | Plot :: Var name :: tail -> try
-                                          (funcTable[name], toNum 1)
-                                          with 
+            | Plot :: Func name :: tail -> try
+                                           (funcTable[name], toNum 1)
+                                           with 
                                            // Function not found in funcTable
-                                          | :? System.Collections.Generic.KeyNotFoundException -> raise (System.Exception($"Parser error: Function '{name}' not declared"))
+                                           | :? System.Collections.Generic.KeyNotFoundException -> raise (System.Exception($"Parser error: Function '{name}' not declared"))
             // Handle variable assignment                              
             | Var name :: Equ :: tail -> let (tList, value) = E tail // Parse the right-hand side expression
                                          varTable.[name] <- value   //Assign the value to the variable
                                          (tList, value)
 
             // Handle function definition
-            | Def :: Var name :: Lpar :: tail ->let (tail,parameters) = getParams tail [] // Parse function parameters
-                                                funcTable.[name] <- (fun (listToModify:terminal list) (replacements:terminal list)  ->
+            | Def :: Func name :: Lpar :: tail ->let (tail,parameters) = getParams tail [] // Parse function parameters
+                                                 funcTable.[name] <- (fun (listToModify:terminal list) (replacements:terminal list)  ->
                                                                      listToModify |> List.map (fun item -> if List.contains item replacements then Var (string (List.findIndex ((=) item) replacements)) else item)) tail parameters
-                                                ([], toNum 1.0) // Return success indicator
+                                                 ([], toNum 1.0) // Return success indicator
             // Handle other cases by delegating to T >> Eopt
             | _ -> (T >> Eopt) tList
             // Parses optional addition or subtraction in expressions
@@ -236,10 +237,10 @@ module Interpreter =
                                                                                       | "log" -> FLOAT(Math.Log(tval.GetValue))
                                                                                       | "sin" -> FLOAT(Math.Sin(tval.GetValue))
                                                                                       ) name)
-                                         | _ -> raise (System.Exception($"Parser error: Incorrect use of built-in function '{name}'"))
+                                         | _ -> raise (System.Exception("Parser error: Incorrect use of built-in function"))
 
             // User-defined function calls
-            | Var name :: Lpar :: tail -> let (args, tail) = parseArguments tail []
+            |Func name :: Lpar :: tail -> let (args, tail) = parseArguments tail []
                                           try
                                           let a = setVarEqualToParam funcTable.[name] args varTable
                                           let (etail,result) = E funcTable.[name]
@@ -250,7 +251,7 @@ module Interpreter =
             | Num value :: E :: exp -> let (tLst,eVal : num)  = Eexp exp
                                        (tLst, FLOAT((float)(value) * (10.0 ** (eVal.GetValue))))
             // Numbers used as variables (error case)
-            | Num value :: Equ :: tail -> raise (System.Exception($"Parser error: Number '{value}' used as a variable name"))
+            | Num value :: Equ :: tail -> raise (System.Exception("Parser error: Number used as a variable name"))
             // Normal number parsing
             | Num value :: tail -> (tail, (if(value.Contains("."))then FLOAT(float value) else INT(int value)))
             // Handle parentheses in expressions
