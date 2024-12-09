@@ -84,7 +84,7 @@ module Interpreter =
             | c :: tail when isLetter c -> 
                 let (iStr, cVal) = scString(tail, string c)
                 if(lut.ContainsKey(cVal))then lut[cVal]::scan iStr else if(iStr.Length > 0 && iStr.Head = '(')then Func cVal :: scan iStr else Var cVal :: scan iStr
-            | _ -> raise (System.Exception("Lexer error: Invalid character"))
+            | _ -> raise (System.Exception($"Lexer error: Invalid character '{input.Head}'"))
         scan (str2lst input)
 
     // Represents complex numbers (not fully used yet)
@@ -237,7 +237,7 @@ module Interpreter =
                                                                                       | "log" -> FLOAT(Math.Log(tval.GetValue))
                                                                                       | "sin" -> FLOAT(Math.Sin(tval.GetValue))
                                                                                       ) name)
-                                         | _ -> raise (System.Exception("Parser error: Incorrect use of built-in function"))
+                                         | _ -> raise (System.Exception($"Parser error: Incorrect use of built-in function '{name}'"))
 
             // User-defined function calls
             |Func name :: Lpar :: tail -> let (args, tail) = parseArguments tail []
@@ -251,7 +251,7 @@ module Interpreter =
             | Num value :: E :: exp -> let (tLst,eVal : num)  = Eexp exp
                                        (tLst, FLOAT((float)(value) * (10.0 ** (eVal.GetValue))))
             // Numbers used as variables (error case)
-            | Num value :: Equ :: tail -> raise (System.Exception("Parser error: Number used as a variable name"))
+            | Num value :: Equ :: tail -> raise (System.Exception($"Parser error: Number '{value}' used as a variable name"))
             // Normal number parsing
             | Num value :: tail -> (tail, (if(value.Contains("."))then FLOAT(float value) else INT(int value)))
             // Handle parentheses in expressions

@@ -22,7 +22,11 @@
 
             <StackPanel Grid.Column ="0" Grid.Row="0">
                 <Label Margin="0,0,15,0" FontSize="20">Input:</Label>
-                <TextBox Margin="0,0,15,0" x:Name="inputBox" AcceptsReturn="True" FontSize="14" Text="" KeyUp="InputBoxKeyUp" Height="150" VerticalScrollBarVisibility="Auto"/>
+                <RichTextBox Margin="0,0,15,0" x:Name="inputBox" AcceptsReturn="True" FontSize="14" KeyUp="InputBoxKeyUp" Height="150" VerticalScrollBarVisibility="Auto">
+                    <FlowDocument LineHeight="1">
+                        
+                    </FlowDocument>
+                </RichTextBox>
             </StackPanel>
 
             <StackPanel Grid.Column ="0" Grid.Row="1">

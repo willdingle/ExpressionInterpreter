@@ -66,7 +66,7 @@ namespace ExpressionInterpreter
 
         private void ZoomPanChanged(object sender, System.Windows.Input.MouseEventArgs e)
         {
-            Trace.WriteLine("Zoom pan changed");
+            //Trace.WriteLine("Zoom pan changed");
 
             var newMin = Model.Axes[0].ActualMinimum;
             var newMax = Model.Axes[0].ActualMaximum;
