@@ -47,15 +47,17 @@ namespace ExpressionInterpreter
                 // Clear output boxes
                 outputBox.Text = "";
                 errorBox.Text = "";
-                //sListBox.Text = "";
+                // sListBox.Text = "";
                 plotView.Model.Series.Clear();
 
                 // Split up lines of code
                 var codeLines = inputBox.Text.Split("\n");
-
-                //Process each line of code
+                var lineNum = 0;
+                
+                // Process each line of code
                 foreach (var codeLine in codeLines)
                 {
+                    lineNum += 1;
                     if (string.IsNullOrWhiteSpace(codeLine))
                         continue;
 
@@ -63,6 +65,7 @@ namespace ExpressionInterpreter
                     {
                         var oList = Interpreter.lexer(codeLine);
 
+                        // Evaluate and output code line
                         try
                         {
                             var Out = Interpreter.parseNeval(oList, varTable, funcTable);
@@ -73,7 +76,7 @@ namespace ExpressionInterpreter
                             }
                             */
 
-                            // Plot the function inputted
+                            // Plot the function inputted if "plot" is used
                             if (oList.Contains(Interpreter.terminal.Plot))
                             {
                                 Trace.WriteLine("" + oList[1]);
@@ -94,9 +97,10 @@ namespace ExpressionInterpreter
                             }
 
                         }
+                        // Parser and evaluation errors
                         catch (Exception ex)
                         {
-                            errorBox.Text += ex.Message + "\n";
+                            errorBox.Text += ex.Message + " (Line " + lineNum + ")\n";
                             plotView.Model.InvalidatePlot(true);
                         }
 
@@ -111,9 +115,10 @@ namespace ExpressionInterpreter
                         e.Handled = true;
 
                     }
+                    // Lexer errors
                     catch (Exception ex)
                     {
-                        errorBox.Text += "\n" + ex.Message;
+                        errorBox.Text += ex.Message + " (Line " + lineNum + ")\n";
                     }
                 }
             }
