@@ -102,7 +102,7 @@ namespace ExpressionInterpreter
                             {
                                 Trace.WriteLine("" + oList[1]);
                                 var funcName = "" + oList[1];
-                                funcName = funcName.Replace("Var ", "");
+                                funcName = funcName.Replace("Func ", "");
                                 funcName = funcName.Replace("\"", "");
 
                                 plotView.PlotFunc(funcName, funcTable, varTable);

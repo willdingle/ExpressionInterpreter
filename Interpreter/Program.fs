@@ -190,6 +190,7 @@ module Interpreter =
                                                  ([], toNum 1.0) // Return success indicator
             // Handle other cases by delegating to T >> Eopt
             | _ -> (T >> Eopt) tList
+                   
             // Parses optional addition or subtraction in expressions
         and Eopt (tList, value) = 
             match tList with
@@ -197,7 +198,9 @@ module Interpreter =
                              Eopt (tLst, value + tval)
             | Sub :: tail -> let (tLst, tval) = T tail
                              Eopt (tLst, value - tval)
-            | _ -> (tList, value)
+            | Var name ::tail -> raise (System.Exception($"Parser error: Missing Operator"))
+            | Lpar :: tail ->  raise (System.Exception($"Parser error: Missing Operator"))
+            | _ -> (tList,value)
             // Parses terms, delegating to Topt for multiplication, division, etc.
         and T tList = (F >> Topt) tList
         and Topt (tList, value) =
