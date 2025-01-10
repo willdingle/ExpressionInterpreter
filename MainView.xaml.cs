@@ -108,6 +108,60 @@ namespace ExpressionInterpreter
                                 plotView.PlotFunc(funcName, funcTable, varTable);
                                 outputBox.Text += "plot graph\n";
                             }
+                            
+                            // Find derivative of function when function is defined
+                            else if (codeLine.Contains("def"))
+                            {
+                                var function = codeLine.Split("=")[1]; //e.g. " 3*x^2 + 2*x - 5"
+                                function = function.Replace(" ", ""); //e.g. "3*x^2+2*x-5"
+                                function = function.Replace("-", "+-"); //e.g. "3*x^2+2*x+-5
+                                var functionParts = function.Split("+"); //e.g. {"3*x^2", "2*x", "-5"}
+
+                                // Find order of function
+                                var orderOfFunc = 0;
+                                foreach (var part in functionParts)
+                                {
+                                    var almostPower = part.Split("^");
+                                    if (almostPower[0].Contains("x"))
+                                    {
+                                        orderOfFunc = 1;
+                                        continue;
+                                    }
+                                    else if (almostPower.Length == 1)
+                                        continue;
+                                    var power = int.Parse(almostPower[1]);
+                                    if (power > orderOfFunc)
+                                        orderOfFunc = power;
+                                }
+
+                                // Find coeffs
+                                float[] coeffs = new float[orderOfFunc + 1];
+                                for (int i = 0; i < functionParts.Length; i++)
+                                {
+                                    var components = functionParts[i].Split("*");
+                                    if (components.Length == 1)
+                                    {
+                                        coeffs[orderOfFunc] += float.Parse(components[0]);
+                                        continue;
+                                    }
+
+                                    var coeff = components[0];
+                                    var xPart = components[1];
+                                    var xPartComponents = xPart.Split("^");
+                                    if (xPartComponents.Length == 1)
+                                    {
+                                        coeffs[orderOfFunc - 1] += float.Parse(coeff);
+                                        continue;
+                                    }
+                                    coeffs[orderOfFunc - int.Parse(xPartComponents[1])] += float.Parse(coeff);
+
+                                }
+
+                                foreach (var co in coeffs)
+                                    Trace.Write(co + ",");
+                                Trace.WriteLine("");
+                            }
+                            
                             //else if (oList.Contains(Interpreter.terminal.Func))
                             //{
                             //   outputBox.Text = funcTable["" + oList[2]];
@@ -151,6 +205,7 @@ namespace ExpressionInterpreter
                     // Lexer errors
                     catch (Exception ex)
                     {
+                        Trace.WriteLine(ex.Message);
                         var invalChar = ex.Message.Split(": ")[1].Split(" ")[2].Split("'")[1];
                         Trace.WriteLine(invalChar);
                         Paragraph newParaL = new Paragraph();
