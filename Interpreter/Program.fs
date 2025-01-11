@@ -153,6 +153,12 @@ module Interpreter =
                                                                       else varTable[name] <- parameters[int name]
                                                                            setVarEqualToParam tail parameters varTable
             | c :: tail-> setVarEqualToParam tail parameters varTable
+
+    // Find derivative
+    let rec deriv (coeffs, len) =
+        match coeffs with
+        | head::[] -> []
+        | head::tail -> [head*((float len)-1.0)]@deriv(tail, tail.Length)
            
     // BNF:
     //<E>        ::= <T> <Eopt> | "Var" <variable> "=" <E> | "Var" <name> "(" <parameters> ")" "="  <E>
@@ -165,12 +171,6 @@ module Interpreter =
     //<NR>       ::= "Num" <value> <NReopt> | "(" <E> ")" | "Var" <variable> | "OP" "(" <E> ")" | "Var" <name> "(" <arguments> ")"
     //<NReopt>   ::= "e" <Eexp> | <empty>
     //<Eexp>     ::= "-" <value> | <value> | "(" <E> ")"
-
-    // Find derivative
-    let rec deriv (coeffs : List<float>, len : int) : List<float>=
-        match coeffs with
-        | head::[] -> []
-        | head::tail -> [head*((float len)-1.0)]@deriv(tail, tail.Length)
 
     // The main function to parse and evaluate expressions
     let parseNeval (tList,varTable:Dictionary<string,num>,funcTable:Dictionary<string,terminal list>) = 
@@ -203,8 +203,8 @@ module Interpreter =
                              Eopt (tLst, value + tval)
             | Sub :: tail -> let (tLst, tval) = T tail
                              Eopt (tLst, value - tval)
-            | Var name ::tail -> raise (System.Exception($"Parser error: Missing Operator"))
-            | Lpar :: tail ->  raise (System.Exception($"Parser error: Missing Operator"))
+            | Var name ::tail -> raise (System.Exception($"Parser error: Missing Operator before var '{name}'"))
+            | Lpar :: tail ->  raise (System.Exception($"Parser error: Missing Operator before ("))
             | _ -> (tList,value)
             // Parses terms, delegating to Topt for multiplication, division, etc.
         and T tList = (F >> Topt) tList
@@ -297,32 +297,6 @@ module Interpreter =
            //| Var name :: tail -> parseArguments tail (List.append arguments [varTable[name]])
            | _ -> raise (System.Exception("Parser error: Invalid argument list"))
         E tList
-
-    (*//Check without evaluation
-    let parser tList = 
-        let rec E tList = (T >> Eopt) tList         // >> is forward function composition operator: let inline (>>) Eopt T tList = Eopt(T(tList))
-        and Eopt tList = 
-            match tList with
-            | Add :: tail -> (T >> Eopt) tail
-            | Sub :: tail -> (T >> Eopt) tail
-            | _ -> tList
-        and T tList = (NR >> Topt) tList
-        and Topt tList =
-            match tList with
-            | Mul :: tail -> (NR >> Topt) tail
-            | Div :: tail -> (NR >> Topt) tail
-            | Mod:: tail -> (NR >> Topt) tail
-            | Pow :: tail -> (NR >> Topt) tail
-            | _ -> tList
-        and NR tList =
-            match tList with 
-            | Num value :: tail -> tail
-            | Lpar :: tail -> match E tail with 
-                              | Rpar :: tail -> tail
-                              | _ -> raise parseError
-            | _ -> raise parseError
-        E tList*)
-
 
 // This is to intialize the LUT.
     [<EntryPoint>]

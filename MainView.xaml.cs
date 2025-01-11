@@ -120,26 +120,29 @@ namespace ExpressionInterpreter
                                 foreach (var part in functionParts)
                                 {
                                     var almostPower = part.Split("^");
-                                    if (almostPower[0].Contains("x"))
+                                    
+                                    if (almostPower.Length == 1)
                                     {
-                                        orderOfFunc = 1;
+                                        if (almostPower[0].Contains("x"))
+                                        {
+                                            if (orderOfFunc < 1) orderOfFunc = 1;
+                                            continue;
+                                        }
                                         continue;
                                     }
-                                    else if (almostPower.Length == 1)
-                                        continue;
                                     var power = int.Parse(almostPower[1]);
                                     if (power > orderOfFunc)
                                         orderOfFunc = power;
                                 }
 
                                 // Find coeffs
-                                float[] coeffs = new float[orderOfFunc + 1];
+                                double[] coeffs = new double[orderOfFunc + 1];
                                 for (int i = 0; i < functionParts.Length; i++)
                                 {
                                     var components = functionParts[i].Split("*");
                                     if (components.Length == 1)
                                     {
-                                        coeffs[orderOfFunc] += float.Parse(components[0]);
+                                        coeffs[orderOfFunc] += double.Parse(components[0]);
                                         continue;
                                     }
 
@@ -148,10 +151,10 @@ namespace ExpressionInterpreter
                                     var xPartComponents = xPart.Split("^");
                                     if (xPartComponents.Length == 1)
                                     {
-                                        coeffs[orderOfFunc - 1] += float.Parse(coeff);
+                                        coeffs[orderOfFunc - 1] += double.Parse(coeff);
                                         continue;
                                     }
-                                    coeffs[orderOfFunc - int.Parse(xPartComponents[1])] += float.Parse(coeff);
+                                    coeffs[orderOfFunc - int.Parse(xPartComponents[1])] += double.Parse(coeff);
 
                                 }
 
@@ -161,6 +164,12 @@ namespace ExpressionInterpreter
 
                                 var fsCoeffs = ListModule.OfSeq(coeffs);
                                 var derivative = Interpreter.deriv(fsCoeffs, orderOfFunc + 1);
+
+                                Trace.WriteLine("--- Derivative: ---");
+                                foreach (var co in derivative)
+                                    Trace.Write(co + ",");
+                                Trace.WriteLine("");
+                                    
                             }
                             
                             //else if (oList.Contains(Interpreter.terminal.Func))
