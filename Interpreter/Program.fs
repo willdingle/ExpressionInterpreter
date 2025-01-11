@@ -167,9 +167,10 @@ module Interpreter =
     //<Eexp>     ::= "-" <value> | <value> | "(" <E> ")"
 
     // Find derivative
-    let deriv (funcName, funcTable:Dictionary<string, terminal list>) =
-        let func = funcTable[funcName]
-        func
+    let rec deriv (coeffs : List<float>, len : int) : List<float>=
+        match coeffs with
+        | head::[] -> []
+        | head::tail -> [head*((float len)-1.0)]@deriv(tail, tail.Length)
 
     // The main function to parse and evaluate expressions
     let parseNeval (tList,varTable:Dictionary<string,num>,funcTable:Dictionary<string,terminal list>) = 

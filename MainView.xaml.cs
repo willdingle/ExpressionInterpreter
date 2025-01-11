@@ -24,14 +24,12 @@ using static FsharpLib.Interpreter.num;
 
 namespace ExpressionInterpreter
 {
-    /// <summary>
-    /// Interaction logic for MainView.xaml
-    /// </summary>
     public partial class MainView : UserControl
     {
 
         private readonly Dictionary<string, FsharpLib.Interpreter.num> varTable = [];
         private readonly Dictionary<string, FSharpList<FsharpLib.Interpreter.terminal>> funcTable = [];
+        private Dictionary<string, float[]> funcCoeffs = [];
         PlotView plotView;
         bool errorsHighlighted = false;
 
@@ -160,6 +158,9 @@ namespace ExpressionInterpreter
                                 foreach (var co in coeffs)
                                     Trace.Write(co + ",");
                                 Trace.WriteLine("");
+
+                                var fsCoeffs = ListModule.OfSeq(coeffs);
+                                var derivative = Interpreter.deriv(fsCoeffs, orderOfFunc + 1);
                             }
                             
                             //else if (oList.Contains(Interpreter.terminal.Func))
