@@ -108,6 +108,7 @@ namespace ExpressionInterpreter
                             }
                             
                             // Find derivative of function when function is defined
+                            /*
                             else if (codeLine.Contains("def"))
                             {
                                 var function = codeLine.Split("=")[1]; //e.g. " 3*x^2 + 2*x - 5"
@@ -171,6 +172,7 @@ namespace ExpressionInterpreter
                                 Trace.WriteLine("");
                                     
                             }
+                            */
                             
                             //else if (oList.Contains(Interpreter.terminal.Func))
                             //{
