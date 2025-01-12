@@ -21,12 +21,21 @@
             </Grid.RowDefinitions>
 
             <StackPanel Grid.Column ="0" Grid.Row="0">
-                <Label Margin="0,0,15,0" FontSize="20">Input:</Label>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Label Grid.Column="0" FontSize="20">Input:</Label>
+                    <CheckBox Name="CalcDerivs" Grid.Column="1" Content="Calculate Derivatives (check help menu first)" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,20,0" IsChecked="False"/>
+                </Grid>
+                
                 <RichTextBox Margin="0,0,15,0" x:Name="inputBox" AcceptsReturn="True" FontSize="14" KeyUp="InputBoxKeyUp" Height="150" VerticalScrollBarVisibility="Auto">
                     <FlowDocument LineHeight="1">
                         
                     </FlowDocument>
                 </RichTextBox>
+               
             </StackPanel>
 
             <StackPanel Grid.Column ="0" Grid.Row="1">
@@ -39,6 +48,7 @@
                 <TextBox Margin="0,0,15,0" Height="150" Foreground="Red" BorderBrush="Red" BorderThickness="2" IsReadOnly="True" x:Name="errorBox" FontSize="14" Text="" VerticalScrollBarVisibility="Auto"/>
             </StackPanel>
             
+
             <!--
             <StackPanel Grid.Column ="0" Grid.Row="3">
                 <Label Margin="0,0,15,0" FontSize="20">Tokens:</Label>

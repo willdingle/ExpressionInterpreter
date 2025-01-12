@@ -95,7 +95,7 @@ namespace ExpressionInterpreter
                         {
                             var Out = Interpreter.parseNeval(oList, varTable, funcTable);
 
-                            // Plot the function inputted if "plot" is used
+                            // Plot the function specified if "plot" is used
                             if (oList.Contains(Interpreter.terminal.Plot))
                             {
                                 Trace.WriteLine("" + oList[1]);
@@ -106,10 +106,9 @@ namespace ExpressionInterpreter
                                 plotView.PlotFunc(funcName, funcTable, varTable);
                                 outputBox.Text += "plot graph\n";
                             }
-                            
-                            // Find derivative of function when function is defined
-                            /*
-                            else if (codeLine.Contains("def"))
+
+                            // Find derivative of function when function is defined (only works for standard polynomials)
+                            else if (codeLine.Contains("def") && CalcDerivs.IsChecked.GetValueOrDefault())
                             {
                                 var function = codeLine.Split("=")[1]; //e.g. " 3*x^2 + 2*x - 5"
                                 function = function.Replace(" ", ""); //e.g. "3*x^2+2*x-5"
@@ -143,6 +142,16 @@ namespace ExpressionInterpreter
                                     var components = functionParts[i].Split("*");
                                     if (components.Length == 1)
                                     {
+                                        if (components[0].Contains("x"))
+                                        {
+                                            var xPartComps = components[0].Split("^");
+                                            if (xPartComps.Length == 1)
+                                            {
+                                                coeffs[orderOfFunc - 1] += 1;
+                                                continue;
+                                            }
+                                            coeffs[orderOfFunc - int.Parse(xPartComps[1])] += 1;
+                                        }
                                         coeffs[orderOfFunc] += double.Parse(components[0]);
                                         continue;
                                     }
@@ -170,14 +179,41 @@ namespace ExpressionInterpreter
                                 foreach (var co in derivative)
                                     Trace.Write(co + ",");
                                 Trace.WriteLine("");
-                                    
+
+                                // Process derivative function and store it
+                                var funcName = "" + oList[1];
+                                funcName = funcName.Replace("Func ", "");
+                                funcName = funcName.Replace("\"", "");
+
+                                // TODO: finish
+                                string derivStr = "def " + funcName + "Deriv(x) = ";
+                                for (int i = 0; i < derivative.Length ; i++)
+                                {
+                                    derivStr += derivative[i] + "*x^" + (orderOfFunc - 1 - i);
+                                    if (i < derivative.Length - 1)
+                                        derivStr += " + ";
+                                }
+
+                                var derivOList = Interpreter.lexer(derivStr);
+                                var derivOut = Interpreter.parseNeval(derivOList, varTable, funcTable);
+                                outputBox.Text += "Function '" + funcName + "' defined\n";
+                                var derivName = "" + derivOList[1];
+                                derivName = derivName.Replace("Func ", "");
+                                derivName = derivName.Replace("\"", "");
+                                outputBox.Text += "Function '" + derivName + "' defined\n";
+
                             }
-                            */
-                            
-                            //else if (oList.Contains(Interpreter.terminal.Func))
-                            //{
-                            //   outputBox.Text = funcTable["" + oList[2]];
-                            //}
+
+                            // Output for when a function is defined
+                            else if (codeLine.Contains("def"))
+                            {
+                                var funcName = "" + oList[1];
+                                funcName = funcName.Replace("Func ", "");
+                                funcName = funcName.Replace("\"", "");
+                                outputBox.Text += "Function '" + funcName + "' defined\n";
+                            }
+
+                            // Regular output
                             else
                             {
                                 outputBox.Text += Out.Item2.ToString() + "\n";

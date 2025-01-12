@@ -21,7 +21,7 @@ namespace ExpressionInterpreter.HelpPages
         {
             InitializeComponent();
 
-            string[] titles = ["Single Variable Assignment", "Multiple Variable Assignment", "Variable Assignment in Expression", "Function Assignment"];
+            string[] titles = ["Single Variable Assignment", "Multiple Variable Assignment", "Variable Assignment in Expression", "Function Assignment", "Derivatives"];
             string[] mainTexts =
             [
                 "varName = x \n" +
@@ -31,7 +31,9 @@ namespace ExpressionInterpreter.HelpPages
                 "(varName = 2)\n" +
                        "\tExample: 6E(x = 3)",
                 "Use any letter followed by () or (x) followed by = [function]\n" +
-                       "\tExample: f(x) = x^2 + 2*x + 3"
+                       "\tExample: f(x) = x^2 + 2*x + 3",
+                "Check 'Calculate Derivates' above the input box to calculate the derivative of a function when it is defined.\n" +
+                       "\tWARNING: Only works for standard polynomials (e.g. def f(x) = 2*x^2 + 3*x - 5\t -->\t fDeriv = 4*x + 3)"
             ];
             int rowIndex = 0;
 
