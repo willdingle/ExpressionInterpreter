@@ -151,6 +151,7 @@ namespace ExpressionInterpreter
                                                 continue;
                                             }
                                             coeffs[orderOfFunc - int.Parse(xPartComps[1])] += 1;
+                                            continue;
                                         }
                                         coeffs[orderOfFunc] += double.Parse(components[0]);
                                         continue;
