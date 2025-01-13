@@ -84,7 +84,15 @@ namespace ExpressionInterpreter
             foreach (LineSeries line in Model.Series)
             {
                 line.Points.Clear();
-                string lineName = "" + line.Title[0];
+                string lineName = "";
+                foreach (char i in line.Title)
+                {
+                    if (i == '(')
+                    {
+                        break;
+                    }
+                    lineName += i;
+                }
 
                 /*
                 double threadIncrement = (newMax - newMin) / numOfThreads;
