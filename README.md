@@ -1,5 +1,5 @@
 # ExpressionInterpreter
-A custom language for intrepreting maths expressions and plotting functions.
+A custom language for interpreting maths expressions and plotting functions.
 
 ## Features
 - Addition, subtraction, multiplication, division
